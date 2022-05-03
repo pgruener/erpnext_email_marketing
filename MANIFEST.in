@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include email_marketing *.css
+recursive-include email_marketing *.csv
+recursive-include email_marketing *.html
+recursive-include email_marketing *.ico
+recursive-include email_marketing *.js
+recursive-include email_marketing *.json
+recursive-include email_marketing *.md
+recursive-include email_marketing *.png
+recursive-include email_marketing *.py
+recursive-include email_marketing *.svg
+recursive-include email_marketing *.txt
+recursive-exclude email_marketing *.pyc
