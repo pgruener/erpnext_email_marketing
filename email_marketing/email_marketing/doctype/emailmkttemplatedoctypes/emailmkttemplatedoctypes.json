@@ -1,0 +1,31 @@
+{
+ "actions": [],
+ "creation": "2022-05-09 10:56:44.509127",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "linked_doctype"
+ ],
+ "fields": [
+  {
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Relevant for DocType(s)",
+   "options": "DocType",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-05-09 16:55:00.594494",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktTemplateDocTypes",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

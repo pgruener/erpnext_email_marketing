@@ -15,6 +15,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/email_marketing/css/email_marketing.css"
 # app_include_js = "/assets/email_marketing/js/email_marketing.js"
+app_include_js = "/assets/email_marketing/js/communication_ext.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/email_marketing/css/email_marketing.css"
@@ -31,7 +32,10 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Communication" : "public/js/communication_ext.js",
+	# "Lead" : "public/js/communication_ext.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -88,7 +92,7 @@ app_license = "MIT"
 # Override standard doctype classes
 
 # override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
+# 	"Email Template": "email_marketing.overrides.EmailTemplate",
 # }
 
 # Document Events
@@ -132,9 +136,10 @@ app_license = "MIT"
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "email_marketing.event.get_events"
-# }
+override_whitelisted_methods = {
+	"frappe.email.doctype.email_template.email_template.get_email_template": "email_marketing.overrides.get_email_template"
+}
+
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
