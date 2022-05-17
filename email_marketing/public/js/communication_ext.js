@@ -25,11 +25,33 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
         const different_sender = this.dialog.fields_dict.different_sender.get_value();
         if (different_sender) {
           this.dialog.set_df_property('different_sender_name', 'hidden', false);
-          this.dialog.fields_dict.different_sender_name.set_value(this.dialog.fields_dict.different_sender.input_area.querySelector('ul li[aria-selected="true"] span.small')?.innerText || '');
+
+          const selectedSenderName = document.evaluate(`//li[contains(., "${different_sender}")]`, this.dialog.fields_dict.different_sender.input_area, null, XPathResult.ANY_TYPE, null)?.iterateNext()?.querySelector('span.small')?.innerText;
+          if (selectedSenderName) {
+            this.dialog.fields_dict.different_sender_name.set_value(selectedSenderName);
+          }
+
+          frappe.db.get_value('Email Account', different_sender, 'email_id').
+            then((res) => {
+              if (res.message.email_id) {
+                // use as sender
+                this.dialog.fields_dict.different_sender_name_as_outbound.set_value(1);
+              } else {
+                // cannot use this email as different sender, so just use the corresponding user data
+                this.dialog.fields_dict.different_sender_name_as_outbound.set_value(0);
+              }
+            });
         } else {
           this.dialog.set_df_property('different_sender_name', 'hidden', true);
+          this.dialog.fields_dict.different_sender_name.set_value('');
         }
       }
+    },
+    {
+      fieldtype: 'Check',
+      read_only: 1,
+      label: __('Different Sender E-Mail is valid outbound mail'),
+      fieldname: 'different_sender_name_as_outbound'
     },
     {
       fieldtype: 'Data',
@@ -88,7 +110,13 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
     let orig_full_name = frappe.user.full_name;
 
     if (different_sender) {
-      form_values.sender = different_sender;
+      if (this.dialog.fields_dict.different_sender_name_as_outbound.get_value() === 1) {
+        // adjust sender if this is really possible
+        form_values.sender = different_sender;
+      } else {
+        form_values.sender = form_values.sender || (this.user_email_accounts || [])[0];
+      }
+
       orig_full_name = frappe.user.full_name;
       frappe.user.full_name = () => {
         // inject alternative sender name

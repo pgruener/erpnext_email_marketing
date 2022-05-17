@@ -33,8 +33,7 @@ app_include_js = "/assets/email_marketing/js/communication_ext.js"
 
 # include js in doctype views
 doctype_js = {
-	"Communication" : "public/js/communication_ext.js",
-	# "Lead" : "public/js/communication_ext.js"
+	"Email Template" : "email_marketing/custom/email_template.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

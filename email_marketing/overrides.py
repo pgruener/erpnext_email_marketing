@@ -24,5 +24,13 @@ def get_email_template(template_name, doc, different_sender=None, different_send
 
 	# todo: create and call method to generate salutation for the doc connected contact
 
+	result = orig_get_email_template(template_name, doc)
 
-	return orig_get_email_template(template_name, doc)
+	signature_name = frappe.db.get_value('Email Template', template_name, 'signature')
+	if signature_name:
+		signature = orig_get_email_template(signature_name, doc)
+
+		if signature:
+			result['message'] += '\n\n<br/>' + signature['message']
+
+	return result
