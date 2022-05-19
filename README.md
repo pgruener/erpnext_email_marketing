@@ -39,6 +39,22 @@ is good in this inverted state.
 We're thinking about making this dependent on the DocType, as for Invoices and Purchase Orders it
 makes sense.. but for now we're fine with the disabled property.
 
+#### Added an optional Signature Reference from each Email Template to another one.
+
+So an Email Template may now also be a Signature.
+The Signatures at the Email Account or the User are too inflexible (also jinja isn't rendered on construction),
+and the Signature should be maintainable "centrally". Not each user on its own.
+
+And for several use-cases other Signatures are needed. E.g. in service mails, a hotline Number should be
+added, but on Lead Mails the signature should promote some interessting features etc. And if writing Lead Mails
+for different product categories, they should be adjusted as well.
+
+So to get this flexibility done "easy" we added an optional reference of a "Signature Email Template" for each
+Email Template which should be used.
+On selection, the signature will be processed with jinja in the same context, as the whole template is processed.
+
+Those to html results are concatenated with a separating <br>.
+
 #### License
 
 MIT
