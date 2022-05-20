@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-05-20 09:04:34.710175",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "target_doctype",
+  "language",
+  "gender",
+  "salutation",
+  "salutation_pattern",
+  "section_break_4",
+  "info"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "DocType",
+   "options": "DocType"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "language",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Language",
+   "options": "Language"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "salutation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Salutation",
+   "options": "Salutation"
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "info",
+   "fieldtype": "HTML",
+   "label": "Notes / Info",
+   "options": "\n{{ first_name }}<br>\n{{ first_name_1c }} - 1st Character of first_name<br>\n{{ last_name }}<br>\n{{ last_name_1c }} - 1st Character of last_name<br>\n{{ full_name }}<br>\n{{ salutation }} - The Contact's Salutation, if it should just be rendered in the pattern.<br>"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "salutation_pattern",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Pattern"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "gender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Gender",
+   "options": "Gender"
+  }
+ ],
+ "links": [],
+ "modified": "2022-05-20 10:01:34.678580",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktSalutation",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

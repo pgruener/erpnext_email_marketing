@@ -183,3 +183,16 @@ user_data_fields = [
 # 	"email_marketing.auth.validate"
 # ]
 
+
+# jinja extensions
+# --------------------------------
+
+# jenv_customization
+jenv = {
+	'methods': [
+		'rs_salutation:email_marketing.email_marketing.salutation.rs_salutation',
+		'rs_salutation_for_doc:email_marketing.email_marketing.salutation.rs_salutation_for_doc',
+		'rs_target_contact_for_doc:email_marketing.email_marketing.sequenced_address_determination.target_contact_name_for_doc',
+		'rs_year_from_date:email_marketing.email_marketing.jinja_generic_helpers.year_from_date'
+	]
+}

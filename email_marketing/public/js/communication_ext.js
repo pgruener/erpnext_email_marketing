@@ -158,5 +158,54 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
 
     // call original "make" function to display the email dialog
     frappe.views.CommunicationComposer.email_enhanced_ext_rs__make.apply(this, arguments);
+
+    // further email initialization
+    frappe.views.CommunicationComposer.prototype.setup_email_enhanced.call(this)
+  }
+
+  frappe.views.CommunicationComposer.prototype.setup_email_enhanced = async function() {
+    this.determine_sender();
+    await this.determine_recipients();
+    this.determine_default_response();
+  }
+
+  frappe.views.CommunicationComposer.prototype.determine_sender = function() {
+  }
+
+  frappe.views.CommunicationComposer.prototype.determine_recipients = async function() {
+    const recipients = this.dialog.fields_dict.recipients.get_value();
+    if (!this.recipients && !recipients) {
+      // no recipients were discovered, call more advanced determination api
+      await frappe.call('email_marketing.api.detect_email_recipient_for_doc', {
+        doc: this.doc
+      }).then(r => {
+        if (!r?.data) {
+          return;
+        }
+
+        this.recipients = r.data;
+        this.dialog.fields_dict.recipients.set_value(r.data);
+      })
+    }
+  }
+
+  frappe.views.CommunicationComposer.prototype.determine_default_response = function() {
+    // TODO also get dependent from the presence of sender
+    if (!this.recipients) {
+      return;
+    }
+
+    // debugger
+    // const template = frappe.db.get_value('EmailMktTemplateDocTypes', { linked_doctype: this.doc.doctype }, 'parent')
+
+    frappe.call('email_marketing.api.default_email_template_for_doctype', {
+        doctype: this.doc.doctype
+      }).then(r => {
+        if (!r?.email_template) {
+          return;
+        }
+
+        this.dialog.fields_dict.email_template_by_doctype.set_value(r.email_template);
+      })
   }
 }
