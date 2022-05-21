@@ -107,6 +107,22 @@ this simple helper to extract the 4 digit year from a date and return None
 if nothing was applied (as is might not be always set in the corresponding
 doctype).
 
+# Receiving Inbound E-Mails from Amazon SES
+
+The SES Rules allow to send inbound email notifications via SNS (Sx Notification Service),
+but the bad thing is, that when transferring the raw MIME, only Mails with up to 150KB are
+supported. And that's far away from acceptable.
+
+So the rules need to be created to upload the mail to S3 and send a SNS as information to
+ERPNext. We'll then download the mail from S3 and drop it there.
+
+To configure Inbound E-Mail, an MX DNS Record needs to be setup to point to the correct
+(Region)[https://docs.aws.amazon.com/ses/latest/dg/regions.html#region-endpoints].
+
+This region needs to configure the rule to transfer inbound mails to S3 and inform via SNS.
+
+The credentials for this service needs to be created in AWS (Create IAM User)[https://us-east-1.console.aws.amazon.com/iam/home#/users$new?step=details] with the relevant (Policy)[https://us-east-1.console.aws.amazon.com/iamv2/home#/policies].
+
 #### License
 
 MIT

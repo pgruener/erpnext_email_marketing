@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-05-20 21:39:43.534441",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "amazon_region",
+  "s3_bucket_name",
+  "aws_access_key_id",
+  "aws_secret_access_key"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "eu-west-1",
+   "fieldname": "amazon_region",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Amazon Region",
+   "length": 32,
+   "reqd": 1
+  },
+  {
+   "fieldname": "s3_bucket_name",
+   "fieldtype": "Data",
+   "label": "S3 Bucket Name",
+   "length": 32
+  },
+  {
+   "fieldname": "aws_access_key_id",
+   "fieldtype": "Data",
+   "label": "AWS Access Key ID",
+   "length": 64,
+   "reqd": 1
+  },
+  {
+   "fieldname": "aws_secret_access_key",
+   "fieldtype": "Password",
+   "label": "AWS Secret Access Key",
+   "length": 64,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-05-20 21:39:43.534441",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktInboundAmzSES",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
