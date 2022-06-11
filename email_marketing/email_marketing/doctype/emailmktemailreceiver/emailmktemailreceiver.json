@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Prompt",
+ "creation": "2022-06-10 18:58:29.028372",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "inbound_transmitter",
+  "column_break_4",
+  "receiving_user",
+  "ignore_virus_mails",
+  "ignore_spam_mails",
+  "amazon_ses_with_s3_settings_section",
+  "sns_subscription_active",
+  "ses_receiving_region",
+  "sns_subscribed_topic",
+  "column_break_13",
+  "aws_sns_api_key",
+  "aws_sns_api_secret",
+  "section_break_14",
+  "email_account_mappings"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inbound_transmitter",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Inbound Transmitter",
+   "options": "Amazon SES with S3 and SNS",
+   "reqd": 1
+  },
+  {
+   "default": "Administrator",
+   "description": "The user, which should create (and own) the inbound E-Mails.\nNeeds to have many Permissions to create email attachments.",
+   "fieldname": "receiving_user",
+   "fieldtype": "Link",
+   "label": "ERPNext Receiving User",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.inbound_transmitter === 'Amazon SES with S3 and SNS'",
+   "fieldname": "amazon_ses_with_s3_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Amazon SES with S3 Settings"
+  },
+  {
+   "fieldname": "sns_subscription_active",
+   "fieldtype": "Data",
+   "label": "SNS Subscription Active",
+   "length": 255,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "aws_sns_api_key",
+   "fieldtype": "Data",
+   "label": "IAM API Key",
+   "length": 64,
+   "mandatory_depends_on": "ses_receiving_region"
+  },
+  {
+   "fieldname": "aws_sns_api_secret",
+   "fieldtype": "Password",
+   "label": "IAM API Secret",
+   "length": 64,
+   "mandatory_depends_on": "ses_receiving_region"
+  },
+  {
+   "default": "1",
+   "description": "Drop Mail if transmitting system detected a virus.",
+   "fieldname": "ignore_virus_mails",
+   "fieldtype": "Check",
+   "label": "Reject Virus Mails"
+  },
+  {
+   "default": "0",
+   "description": "Drop Mail, if the dispatching system considered mail as spam",
+   "fieldname": "ignore_spam_mails",
+   "fieldtype": "Check",
+   "label": "Reject Spam Mails"
+  },
+  {
+   "fieldname": "sns_subscribed_topic",
+   "fieldtype": "Data",
+   "label": "SNS Topic",
+   "length": 32,
+   "mandatory_depends_on": "ses_receiving_region",
+   "unique": 1
+  },
+  {
+   "fieldname": "ses_receiving_region",
+   "fieldtype": "Select",
+   "label": "Amazon Receiving Region",
+   "options": "\neu-west-1\nus-east-1\nus-west-2"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "email_account_mappings",
+   "fieldtype": "Table",
+   "label": "Matching E-Mail Accounts",
+   "options": "EmailMktEmailReceiverAccounts"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-11 12:03:50.801330",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktEmailReceiver",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

@@ -1,2 +1,17 @@
 # frappe -- https://github.com/frappe/frappe is installed via 'bench init'
 boto3
+# # for m2crypto on mac there are several prerequisites
+# # $ brew install swig openssl
+# # also make sure python is installed from brew
+# # $ which python # should point to /usr/local/homebrew/...
+# #
+# # if not
+# # brew install python
+# #
+# # afterwards out of the bench directory:
+# # $ env LDFLAGS="-L$(brew --prefix openssl)/lib" \
+# #   CFLAGS="-I$(brew --prefix openssl)/include" \
+# #   SWIG_FEATURES="-cpperraswarn -includeall -I$(brew --prefix openssl)/include" \
+# #   `pwd`/env/bin/pip install m2crypto
+# M2Crypto # make sure there is swig installed (on mac `brew install swig openssl`)
+oscrypto

@@ -21,9 +21,6 @@ def get_email_template(template_name, doc, different_sender=None, different_send
 	doc['different_sender'] = '' if different_sender is None else different_sender
 	doc['different_sender_name'] = '' if different_sender is None else (different_sender_name or '')
 
-
-	# todo: create and call method to generate salutation for the doc connected contact
-
 	result = orig_get_email_template(template_name, doc)
 
 	signature_name = frappe.db.get_value('Email Template', template_name, 'signature')

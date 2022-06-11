@@ -107,21 +107,202 @@ this simple helper to extract the 4 digit year from a date and return None
 if nothing was applied (as is might not be always set in the corresponding
 doctype).
 
-# Receiving Inbound E-Mails from Amazon SES
+# Receiving Inbound E-Mails
 
-The SES Rules allow to send inbound email notifications via SNS (Sx Notification Service),
-but the bad thing is, that when transferring the raw MIME, only Mails with up to 150KB are
-supported. And that's far away from acceptable.
+In some of our scenarios, it's not useful (or necessary) to persist emails in some
+mailboxes, which are regularly observed from ERPNext, to receive new emails.
 
-So the rules need to be created to upload the mail to S3 and send a SNS as information to
-ERPNext. We'll then download the mail from S3 and drop it there.
+The source of truth can be the ERPNext itself for some domains.
 
-To configure Inbound E-Mail, an MX DNS Record needs to be setup to point to the correct
-(Region)[https://docs.aws.amazon.com/ses/latest/dg/regions.html#region-endpoints].
+So we've created the doctype **EmailMktEmailReceiver** to declare email services, which
+are getting enabled to transfer emails directly into our ERPNext.
 
-This region needs to configure the rule to transfer inbound mails to S3 and inform via SNS.
+## EmailMktEmailReceiver
 
-The credentials for this service needs to be created in AWS (Create IAM User)[https://us-east-1.console.aws.amazon.com/iam/home#/users$new?step=details] with the relevant (Policy)[https://us-east-1.console.aws.amazon.com/iamv2/home#/policies].
+This E-Mail Receiver doctype defines transmitters, which are allowed
+to POST emails into ERPNext. The posting message structures are will be separated by the **inbound_transmitter**
+
+When this endpoint is defined, this endpoint might send all kind of emails, into the system. Independent of the used "To:" in the E-Mail Address.
+
+At this point we map the inbound messages back to the ERPNext standard
+**Email Account** doctype.
+
+But the mapping can be done a bit more flexible, as the **email_id** doesn't have to match exactly; we're providing a fbmatch matching to
+detect the correct target **Email Account** with the Child Table **EmailMktEmailReceiverAccounts**.
+
+### EmailMktEmailReceiverAccounts
+
+| Pattern                   | Email Account |
+| ------------------------- | ------------- |
+| service@royal-software.de | Service Mails |
+| sales@royal-software.de   | Sales Mails   |
+| privacy@royal-software.de | Privacy Mails |
+| *@royal-software.de       | Catch all     |
+
+With that you get the flexibility to map common typos or special departments, to specific *Email Accounts*, but don't need to adjust
+the whole AWS stack for each email.
+
+If you don't like a Catch All rule, this is not required to be setup.
+
+If no *Email Account* can be detected for the incoming E-Mail, it's just ignored and not created in ERPNext.
+
+If the sender of the E-Mail should get a response, that he sent an E-Mail to an unknown address, this should be configurred correctly in the **inbound_transmitter**.
+
+E.g. in AWS's SES the **Email receiving -> Rule set** provides conditions, where the definition is possible, if it should accept emails for a whole domain, for all of its subdomains, or for a single e-mail address.
+
+If a mail is sent to a E-Mail Address, which is not passing one of those conditions, the email is directly rejected with a *Mail Delivery Notice*.
+
+The [Patterns](https://docs.python.org/3/library/fnmatch.html) may use * for any amount of wildcard characters, or ? for single wildcard characters to match the receiving email addresses.
+
+### inbound_transmitter
+
+We started with the **inbound_transmitter** for Amazon S3/SES, but this will extend in
+the future.
+So the "inbound_transmitter" categorizes the transferring servies.
+
+Currently supported transmitters:
+* [Receiving from Amazon SES / SNS with S3](#Receiving+Inbound+Mails+from+Amazon+SES)
+
+Each inbound receiver is completely under the responsibility of a single Company and furthermore
+allows a precise assignment to it, which is necessary for applying further rules, like responsibility
+detection, etc.
+
+After the desired "inbound_transmitter" is chosen, the corresponding configuration requirements will appear.
+
+## Receiving Inbound Mails from Amazon SES
+
+Amazon SES allows several options of how to handle inbound mails.
+We don't want to setup a lambda or some other decentralized processing, so the only two
+options, which are feasable are:
+
+1. Publish to Amazon SNS topic
+2. Deliver to S3 bucket (and Publish that to an SNS topic)
+
+The first option seems slick, but only allows 150KB for each email as maximum load. So that's not viable for rich email applications.
+
+The best match for our cases is the S3 bucket with the combined SNS topic.
+
+So the email comes in, Amazon uploads the raw message to S3 and sends a message to the SNS topic.
+The SNS Topic will have a subscription from our ERPNext system, which is immediately informed, when
+an email arrives.
+This Inbound Module then downloads the email from S3, generates the E-Mail in ERPNext and destroys
+the S3 entity afterwards.
+
+The matching **EmailMktEmailReceiver** profile is detected by the **SNS Topic**,
+which needs to be unique.
+
+In AWS the following configurations needs to be done:
+
+- In the chosen inbound region a [Domain Identity](https://eu-west-1.console.aws.amazon.com/ses/home?region=eu-west-1#/verified-identities/create) needs to be created, which needs to get verified as instructed there.
+   Access the [list of verified identities](https://eu-west-1.console.aws.amazon.com/ses/home?region=eu-west-1#/verified-identities)
+
+   To configure the verified Domain that emails are passed to Amazon, a DNS MX record needs to be setup in the [pattern](https://docs.aws.amazon.com/ses/latest/dg/regions.html#region-endpoints): inbound-smtp.**region**.amazonaws.com
+
+- In the section [Email receiving](https://eu-west-1.console.aws.amazon.com/ses/home?region=eu-west-1#/email-receiving) a **Rule Set** needs to be created (or extended) with the action **Deliver to Amazon S3 bucket**
+
+   ProTip: *The bucket and the corresponding SNS topic can be created directly in this wizard.*
+
+   Within the new SNS Topic, the Policy needs to defined, that your SES service is permitted to post
+   messages to this topic.
+
+   You can use this Policy JSON for the SNS topic if you replace the following variables:
+
+   * AWS_ACCOUNT_ID: [Get it in the Support Center (in the top of the left navbar)](https://us-east-1.console.aws.amazon.com/support/home?region=eu-west-1#/)
+   * REGION_ID: The region you have chosen for S3 and Inbound emails. If you use different ones, be sure to maintain it correctly in the JSON
+   * BUCKET_NAME: The bucket name you created
+   * SNS_TOPIC_NAME: The name of the created SNS Topic, which receives the notifications about new emails.
+
+      ```
+      {
+         "Version": "2008-10-17",
+         "Statement": [
+            {
+               "Sid": "AllowSNSPublish",
+               "Effect": "Allow",
+               "Principal": {
+               "Service": "ses.amazonaws.com"
+               },
+               "Action": "SNS:Publish",
+               "Resource": "arn:aws:sns:*REGION_ID*:*AWS_ACCOUNT_ID*:*SNS_TOPIC_NAME*",
+               "Condition": {
+                  "StringEquals": {
+                     "AWS:SourceAccount": "*AWS_ACCOUNT_ID*"
+                  },
+                  "StringLike": {
+                     "AWS:SourceArn": "arn:aws:ses:*"
+                  }
+               }
+            }
+         ]
+      }
+      ```
+
+      You can use this Policy JSON for the newly created S3 bucket (and replace the corresponding variables):
+
+      ```
+      {
+         "Version": "2012-10-17",
+         "Statement": [
+            {
+               "Sid": "AllowSESPuts",
+               "Effect": "Allow",
+               "Principal": {
+                  "Service": "ses.amazonaws.com"
+               },
+               "Action": "s3:PutObject",
+               "Resource": "arn:aws:s3:::*BUCKET_NAME*/*",
+               "Condition": {
+                  "StringEquals": {
+                     "aws:Referer": "*AWS_ACCOUNT_ID*"
+                  }
+               }
+            }
+         ]
+      }
+      ```
+
+      Within the newly created SNS Topic a Subscription needs to be created, which will point to
+      our ERPNext instance.
+      The protocol of the subscription should be **HTTPS**. This enables the property field, which
+      will be the target for the ERPNext API URL, which will be called for each inbound e-mail.
+
+      You'll find your correct ERPNext endpoint URL in [The Email Receiver configuration DocType](#EmailMktEmailReceiver).
+
+- [Create a Policy](https://us-east-1.console.aws.amazon.com/iamv2/home#/policies) with permission to
+   1. subscribe to the inbound_email SNS topic
+   2. read objects of the S3 Bucket
+   3. delete objects of the S3 Bucket
+
+   You can also use this Policy JSON if you replace the variables with your matching values:
+
+   * AWS_ACCOUNT_ID: [Get it in the Support Center (in the top of the left navbar)](https://us-east-1.console.aws.amazon.com/support/home?region=eu-west-1#/)
+   * REGION_ID: The region you have chosen for S3 and Inbound emails. If you use different ones, be sure to maintain it correctly in the JSON
+   * BUCKET_NAME: The bucket name you created
+   * SNS_TOPIC_NAME: The name of the created SNS Topic, which receives the notifications about new emails.
+
+      ```
+      {
+         "Version": "2012-10-17",
+         "Statement": [
+            {
+                  "Sid": "VisualEditor1",
+                  "Effect": "Allow",
+                  "Action": [
+                     "s3:GetObject",
+                     "ses:SendRawEmail",
+                     "s3:DeleteObject"
+                  ],
+                  "Resource": [
+                     "arn:aws:s3:::*BUCKET_NAME*/*",
+                     "arn:aws:ses:*REGION_ID*:*AWS_ACCOUNT_ID*:identity/*"
+                  ]
+            }
+         ]
+      }
+      ```
+
+- [Create a User](https://us-east-1.console.aws.amazon.com/iam/home#/users$new?step=details) (IAM), which is assigned to the policy
+- Generate API Key and Secret for the new User
 
 #### License
 

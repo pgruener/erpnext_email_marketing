@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestEmailMktInboundAmzSES(unittest.TestCase):
+class TestEmailMktEmailReceiver(unittest.TestCase):
 	pass
