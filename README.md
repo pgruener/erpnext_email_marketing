@@ -161,7 +161,7 @@ the future.
 So the "inbound_transmitter" categorizes the transferring servies.
 
 Currently supported transmitters:
-* [Receiving from Amazon SES / SNS with S3](#Receiving+Inbound+Mails+from+Amazon+SES)
+* [Receiving from Amazon SES / SNS with S3](#receiving-inbound-mails-from-amazon-ses)
 
 Each inbound receiver is completely under the responsibility of a single Company and furthermore
 allows a precise assignment to it, which is necessary for applying further rules, like responsibility
@@ -269,9 +269,9 @@ In AWS the following configurations needs to be done:
       You'll find your correct ERPNext endpoint URL in [The Email Receiver configuration DocType](#EmailMktEmailReceiver).
 
 - [Create a Policy](https://us-east-1.console.aws.amazon.com/iamv2/home#/policies) with permission to
-   1. subscribe to the inbound_email SNS topic
-   2. read objects of the S3 Bucket
-   3. delete objects of the S3 Bucket
+   * subscribe to the inbound_email SNS topic
+   * read objects of the S3 Bucket
+   * delete objects of the S3 Bucket
 
    You can also use this Policy JSON if you replace the variables with your matching values:
 
