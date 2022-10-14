@@ -61,12 +61,14 @@ def handle_s3_sns_message(message, email_receiver):
 		if receipt['action']['type'] != 'S3':
 			frappe.throw('Unexpected SNS action received: {}'.format(receipt['action']['type']))
 
+		import pdb; pdb.set_trace()
+
 		# ignore mails which were detected to be a virus (if set up in EmailMktEmailReceiver)
-		if not email_receiver.ignore_virus_mails and 'virusVerdict' in receipt and receipt['virusVerdict']['status'] != 'PASS':
+		if not email_receiver.ignore_virus_mails and 'virusVerdict' in receipt and ( receipt['virusVerdict']['status'] != 'PASS' and receipt['virusVerdict']['status'] != 'DISABLED' ):
 			return
 
 		# ignore mails which were considered to be spam (if set up in EmailMktEmailReceiver)
-		if not email_receiver.ignore_spam_mails and 'spamVerdict' in receipt and receipt['spamVerdict']['status'] != 'PASS':
+		if not email_receiver.ignore_spam_mails and 'spamVerdict' in receipt and ( receipt['spamVerdict']['status'] != 'PASS' and receipt['spamVerdict']['status'] != 'DISABLED' ):
 			return
 
 		# find corresponding email_account
