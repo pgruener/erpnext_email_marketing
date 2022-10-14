@@ -1,0 +1,114 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-07-26 09:18:38.022365",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "entry_type",
+  "triggering_node",
+  "reference_doctype",
+  "reference_name",
+  "column_break_4",
+  "optional_parameter_1",
+  "optional_parameter_2",
+  "optional_parameter_3",
+  "section_break_7",
+  "invoked_nodes"
+ ],
+ "fields": [
+  {
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Entry Type",
+   "options": "Clicked Link in E-Mail\nOpened E-Mail\nTag added\nTag removed\nSubscribed in Group\nSubscribed in general\nUnsubscribed from Campaign\nUnsubscribed from Group\nUnsubscribed in general\nUnsubscribed via Spam categorization\nE-Mail sent\nWait scheduled time",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reference DocType",
+   "options": "DocType",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Reference Name",
+   "options": "reference_doctype",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "optional_parameter_1",
+   "fieldtype": "Data",
+   "label": "Optional Parameter 1",
+   "length": 255
+  },
+  {
+   "fieldname": "optional_parameter_2",
+   "fieldtype": "Data",
+   "label": "Optional Parameter 2",
+   "length": 255
+  },
+  {
+   "fieldname": "optional_parameter_3",
+   "fieldtype": "Data",
+   "label": "Optional Parameter 3",
+   "length": 255
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Each event has a reason node, which is responsible for the event to be raised.",
+   "fieldname": "triggering_node",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Triggering Node",
+   "options": "EmailMktCampaignEmail",
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "invoked_nodes",
+   "fieldtype": "Table",
+   "label": "Invoked Nodes",
+   "options": "EmailMktEventStreamNode"
+  }
+ ],
+ "links": [],
+ "modified": "2022-08-07 15:29:57.008399",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktEventStream",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

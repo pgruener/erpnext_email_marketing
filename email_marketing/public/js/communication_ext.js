@@ -97,6 +97,17 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
       }
     });
 
+    // change handler of "Add Signature" Button to detect the correct signature
+    let signatureButton = fields.find(f => f.fieldname === 'add_signature')
+    signatureButton.click = async () => {
+      const sender_email = me.dialog.get_value('sender');
+
+      this.message = me.dialog.get_value('content')
+      this.content_set = false;
+
+      await this.set_content(sender_email);
+    }
+
     return fields;
   }
 
@@ -208,4 +219,15 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
         this.dialog.fields_dict.email_template_by_doctype.set_value(r.email_template);
       })
   }
+
+
+  /**
+   * Inject into get_signature() to load (right) signature matching the sending account,
+   * instead of just "one" default outgoing account.
+   */
+  //  frappe.views.CommunicationComposer.email_enhanced_ext_rs__get_signature = frappe.views.CommunicationComposer.prototype.get_signature;
+  //  frappe.views.CommunicationComposer.prototype.get_signature = function () {
+  //    // call original "get_signature" function to display the email dialog
+  //    frappe.views.CommunicationComposer.email_enhanced_ext_rs__get_signature.apply(this, arguments);
+  //  }
 }

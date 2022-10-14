@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "creation": "2022-06-18 14:31:02.822645",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "operator",
+  "segment",
+  "segment_count",
+  "segment_count_in_context"
+ ],
+ "fields": [
+  {
+   "fieldname": "segment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Segment",
+   "options": "EmailMktSegment",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Operator",
+   "options": "\nUnion (or)\nIntersect (and)\nExcept (xor)",
+   "read_only_depends_on": "eval:doc.idx === 1"
+  },
+  {
+   "fieldname": "segment_count",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Segment Count",
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "segment_count_in_context",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Segment Count in Context",
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-07-16 14:03:16.206134",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktAudienceSegments",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "Prompt",
+ "creation": "2022-06-18 14:29:55.726723",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "parent_segment",
+  "result_doctype",
+  "description",
+  "column_break_4",
+  "item_count",
+  "last_generated_at",
+  "segmentation_section",
+  "segmentation_operations"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Contact",
+   "fieldname": "result_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Result DocType",
+   "options": "DocType",
+   "read_only_depends_on": "parent_segment",
+   "reqd": 1,
+   "search_index": 1,
+   "set_only_once": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "description": "If an existing Segment should be extended, this can be used as Parent",
+   "fieldname": "parent_segment",
+   "fieldtype": "Link",
+   "label": "Parent Segment",
+   "options": "EmailMktSegment"
+  },
+  {
+   "depends_on": "eval:!doc.__newname",
+   "fieldname": "segmentation_section",
+   "fieldtype": "Section Break",
+   "label": "Segmentation"
+  },
+  {
+   "fieldname": "segmentation_operations",
+   "fieldtype": "Table",
+   "options": "EmailMktSegmentSelections"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Item Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_generated_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Last Generated At",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2022-07-16 14:10:35.555060",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktSegment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Email Marketing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Email Marketeer",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

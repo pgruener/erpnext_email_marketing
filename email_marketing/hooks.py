@@ -109,23 +109,23 @@ doctype_js = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"email_marketing.tasks.all"
-# 	],
+scheduler_events = {
+	"all": [
+		"email_marketing.tasks.email_account.notify_unreplied",
+	],
 # 	"daily": [
 # 		"email_marketing.tasks.daily"
 # 	],
-# 	"hourly": [
-# 		"email_marketing.tasks.hourly"
-# 	],
+	"hourly": [
+		"email_marketing.tasks.process_active_campaigns"
+	],
 # 	"weekly": [
 # 		"email_marketing.tasks.weekly"
 # 	]
 # 	"monthly": [
 # 		"email_marketing.tasks.monthly"
 # 	]
-# }
+}
 
 # Testing
 # -------

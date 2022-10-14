@@ -1,0 +1,264 @@
+{
+ "actions": [],
+ "creation": "2022-07-16 14:43:00.966669",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "based_on",
+  "entry_type",
+  "description",
+  "column_break_1",
+  "scheduled_at",
+  "send_after_days",
+  "send_after_hours",
+  "wait_for_section",
+  "wait_for_event_type",
+  "column_break_9",
+  "wait_event_in_email_campaign",
+  "wait_event_in_email",
+  "wait_event_in_email_link_pattern",
+  "waiting_for_tag",
+  "wait_for_group_change",
+  "section_combine",
+  "combination_operator_1",
+  "combination_layer_1",
+  "combination_type",
+  "column_break_16",
+  "combination_operator_2",
+  "combination_layer_2",
+  "section_break_1",
+  "mailform",
+  "section_break_2",
+  "subject",
+  "email_body",
+  "attachment",
+  "column_break_3",
+  "btn_test_email",
+  "last_evaluation_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Subject",
+   "mandatory_depends_on": "eval:doc.entry_type === 'Email' && !doc.mailform",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.mailform"
+  },
+  {
+   "depends_on": "eval:doc.entry_type != 'Combine' && doc.entry_type != 'Wait for Event' && (!doc.send_after_days && !doc.send_after_hours)",
+   "fieldname": "scheduled_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Scheduled At"
+  },
+  {
+   "fieldname": "email_body",
+   "fieldtype": "Text Editor",
+   "label": "E-Mail",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.mailform"
+  },
+  {
+   "depends_on": "eval:doc.entry_type != 'Combine' && !doc.scheduled_at",
+   "fieldname": "send_after_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Send after days",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Email'",
+   "fieldname": "column_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment",
+   "read_only_depends_on": "eval:doc.mailform"
+  },
+  {
+   "columns": 1,
+   "fieldname": "btn_test_email",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Test",
+   "precision": "2",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Email'"
+  },
+  {
+   "columns": 1,
+   "fieldname": "mailform",
+   "fieldtype": "Link",
+   "label": "Mailform",
+   "mandatory_depends_on": "eval:doc.entry_type === 'Email' && !doc.subject",
+   "options": "Email Template",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.subject"
+  },
+  {
+   "collapsible_depends_on": "eval:doc.mailform && doc.entry_type === 'Email'",
+   "depends_on": "eval:!doc.mailform && doc.entry_type === 'Email'",
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "Define Inline E-Mail"
+  },
+  {
+   "collapsible_depends_on": "eval:doc.subject && doc.entry_type === 'Email'",
+   "depends_on": "eval:!doc.subject && doc.entry_type === 'Email'",
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break",
+   "label": "Choose E-Mail from Template"
+  },
+  {
+   "depends_on": "eval:doc.entry_type != 'Combine' && !doc.scheduled_at",
+   "fieldname": "send_after_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Send after hours",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "based_on",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Based On",
+   "options": "EmailMktCampaignEmail",
+   "search_index": 1
+  },
+  {
+   "default": "Email",
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Email\nWait\nWait for Event\nCombine",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event'",
+   "fieldname": "wait_for_section",
+   "fieldtype": "Section Break",
+   "label": "Wait for Event"
+  },
+  {
+   "default": "Wait scheduled time",
+   "fieldname": "wait_for_event_type",
+   "fieldtype": "Select",
+   "label": "Wait for Event Type",
+   "mandatory_depends_on": "eval:doc.entry_type === 'Wait'",
+   "options": "Clicked Link in E-Mail\nOpened E-Mail\nTag added\nTag removed\nSubscribed in Group\nSubscribed in general\nUnsubscribed from Campaign\nUnsubscribed from Group\nUnsubscribed in general\nUnsubscribed via Spam categorization\nE-Mail sent\nWait scheduled time"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail', 'Opened E-Mail', 'E-Mail sent'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_event_in_email_campaign",
+   "fieldtype": "Link",
+   "label": "Wait Event in E-Mail Campaign",
+   "options": "EmailMktCampaign"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_event_in_email_link_pattern",
+   "fieldtype": "Data",
+   "label": "Wait Event in E-Mail Link Pattern"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Tag added', 'Tag removed'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "waiting_for_tag",
+   "fieldtype": "Link",
+   "label": "Wait for Tag Event",
+   "options": "EmailMktTag"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Subscribed in Group', 'Unsubscribed from Group'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_for_group_change",
+   "fieldtype": "Link",
+   "label": "Wait for Group Change",
+   "options": "EmailMktSubscriberGroup"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Combine'",
+   "fieldname": "section_combine",
+   "fieldtype": "Section Break",
+   "label": "Combine Section"
+  },
+  {
+   "default": "Does match",
+   "fieldname": "combination_operator_1",
+   "fieldtype": "Select",
+   "label": "Combination Operator 1",
+   "options": "Does match\nDoes not match"
+  },
+  {
+   "fieldname": "combination_layer_1",
+   "fieldtype": "Link",
+   "label": "Combination Layer 1",
+   "mandatory_depends_on": "eval: doc.entry_type === 'Combine'",
+   "options": "EmailMktCampaignEmail"
+  },
+  {
+   "fieldname": "column_break_16",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Does match",
+   "fieldname": "combination_operator_2",
+   "fieldtype": "Select",
+   "label": "Combination Operator 2",
+   "options": "Does match\nDoes not match"
+  },
+  {
+   "fieldname": "combination_layer_2",
+   "fieldtype": "Link",
+   "label": "Combination Layer 2",
+   "mandatory_depends_on": "eval: doc.entry_type === 'Combine'",
+   "options": "EmailMktCampaignEmail"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail', 'Opened E-Mail', 'E-Mail sent'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_event_in_email",
+   "fieldtype": "Link",
+   "label": "Wait Event in E-Mail ",
+   "options": "EmailMktCampaignEmail"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "last_evaluation_at",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Last evaluation at"
+  },
+  {
+   "default": "And",
+   "fieldname": "combination_type",
+   "fieldtype": "Select",
+   "label": "Combination Type",
+   "options": "And\nOr"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-08-02 18:38:03.843638",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktCampaignEmail",
+ "owner": "Administrator",
+ "permissions": [],
+ "search_fields": "entry_type,description,subject",
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

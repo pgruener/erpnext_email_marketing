@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-07-26 09:20:50.475283",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "connected_node",
+  "reference_doctype",
+  "reference_name",
+  "processed_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "connected_node",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Connected Node",
+   "options": "EmailMktCampaignEmail",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "processed_at",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Processed At",
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-07-30 17:02:41.476711",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktEventStreamNode",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

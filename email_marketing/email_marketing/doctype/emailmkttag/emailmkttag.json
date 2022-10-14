@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "Prompt",
+ "creation": "2022-06-18 11:59:08.915917",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tag_description"
+ ],
+ "fields": [
+  {
+   "fieldname": "tag_description",
+   "fieldtype": "Small Text",
+   "label": "Tag Description"
+  }
+ ],
+ "links": [
+  {
+   "group": "E-Mail Marketing",
+   "is_child_table": 1,
+   "link_doctype": "EmailMktContactTag",
+   "link_fieldname": "tag_name",
+   "parent_doctype": "Contact",
+   "table_fieldname": "email_tags"
+  }
+ ],
+ "modified": "2022-06-18 12:43:32.639185",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktTag",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Email Marketing Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

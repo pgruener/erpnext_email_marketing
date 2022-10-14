@@ -1,0 +1,209 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:title",
+ "creation": "2022-06-18 13:59:47.374377",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "campaign_type",
+  "sending_user",
+  "email_account",
+  "sender_name_source",
+  "alternative_sender_name",
+  "email_signature",
+  "column_break_3",
+  "status",
+  "respect_events_from",
+  "campaign",
+  "company",
+  "subscriber_group",
+  "audience_section",
+  "target_audiences",
+  "automation_section",
+  "amended_from",
+  "section_break_11",
+  "campaign_emails"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Newsletter",
+   "fieldname": "campaign_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Campaign Type",
+   "options": "Newsletter\nAutomation",
+   "reqd": 1,
+   "set_only_once": 1,
+   "translatable": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "campaign",
+   "fieldtype": "Link",
+   "label": "Campaign",
+   "options": "Campaign"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.campaign_type === 'Newsletter'",
+   "fieldname": "audience_section",
+   "fieldtype": "Section Break",
+   "label": "Audience"
+  },
+  {
+   "fieldname": "target_audiences",
+   "fieldtype": "Table",
+   "label": "Target Audiences",
+   "options": "EmailMktCampaignAudiences"
+  },
+  {
+   "depends_on": "eval:doc.campaign_type === 'Automation'",
+   "fieldname": "automation_section",
+   "fieldtype": "Section Break",
+   "label": "Automation"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "EmailMktCampaign",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "description": "A special Group, where (un-)subscribes can be handled without a global subscription impact for the Contact",
+   "fieldname": "subscriber_group",
+   "fieldtype": "Link",
+   "label": "Subscriber Group",
+   "options": "EmailMktSubscriberGroup",
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.campaign_type === 'Newsletter'",
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "campaign_emails",
+   "fieldtype": "Table",
+   "label": "Structured Nodes",
+   "options": "EmailMktCampaignEmail"
+  },
+  {
+   "fieldname": "email_signature",
+   "fieldtype": "Link",
+   "label": "Signature",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_account",
+   "fieldtype": "Link",
+   "label": "Sending E-Mail Account",
+   "options": "Email Account",
+   "reqd": 1
+  },
+  {
+   "default": "Planned",
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status",
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.sender_name_source === 'Freetext'",
+   "fieldname": "alternative_sender_name",
+   "fieldtype": "Data",
+   "label": "Alternative Sender Name"
+  },
+  {
+   "default": "user",
+   "fieldname": "sending_user",
+   "fieldtype": "Link",
+   "label": "Responsible Sending User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "default": "E-Mail Account",
+   "fieldname": "sender_name_source",
+   "fieldtype": "Select",
+   "label": "Sender Name From",
+   "options": "E-Mail Account\nSending User\nFreetext"
+  },
+  {
+   "default": "Now",
+   "description": "This is also the \"Campaign Start\" timestamp, for waiting nodes based on the Campaign",
+   "fieldname": "respect_events_from",
+   "fieldtype": "Datetime",
+   "label": "Respect events from",
+   "read_only_depends_on": "eval:doc.status !== 'Planned'",
+   "reqd": 1,
+   "search_index": 1
+  }
+ ],
+ "links": [],
+ "modified": "2022-08-02 12:03:50.576587",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktCampaign",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "import": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "import": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Email Marketing Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Email Marketeer",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

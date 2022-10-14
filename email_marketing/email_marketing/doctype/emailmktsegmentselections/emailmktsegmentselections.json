@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "creation": "2022-06-18 15:35:50.752992",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "log_operator",
+  "short_description",
+  "btn_segment_filters",
+  "segment_filters",
+  "segment_count",
+  "segment_count_in_context"
+ ],
+ "fields": [
+  {
+   "fieldname": "log_operator",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Log Operator",
+   "options": "and\nor\nxor"
+  },
+  {
+   "fieldname": "btn_segment_filters",
+   "fieldtype": "Button",
+   "in_list_view": 1,
+   "label": "Segment Filters"
+  },
+  {
+   "fieldname": "segment_filters",
+   "fieldtype": "Small Text",
+   "hidden": 1,
+   "label": "Segment Filters"
+  },
+  {
+   "fieldname": "short_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Short Description"
+  },
+  {
+   "fieldname": "segment_count",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Segment Count",
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "segment_count_in_context",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Segment Count in Context",
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-07-19 23:32:36.422448",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktSegmentSelections",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

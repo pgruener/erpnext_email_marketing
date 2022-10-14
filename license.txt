@@ -1,1 +1,1 @@
-License: MIT
+License: Starting from 20220730 GPLv3 unfortunately, instead of MIT, as we copied several code snippets from ERPNext.

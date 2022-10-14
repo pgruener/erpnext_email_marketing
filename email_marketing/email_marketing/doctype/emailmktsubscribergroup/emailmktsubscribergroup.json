@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:title",
+ "creation": "2022-07-16 12:59:39.083718",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "public_title",
+  "public",
+  "public_description",
+  "column_break_5",
+  "company",
+  "optin_rule",
+  "section_break_3",
+  "members"
+ ],
+ "fields": [
+  {
+   "allow_in_quick_entry": 1,
+   "default": "1",
+   "fieldname": "public",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Public"
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "members",
+   "fieldtype": "Table",
+   "label": "Members",
+   "options": "EmailMktSubscriberGroupItem"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "public_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Public Title"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "public_description",
+   "fieldtype": "Small Text",
+   "label": "Public Description"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Opt-In",
+   "description": "Defines if the members of the Group did Opt-In or Opt-Out on its own. If it is \"Opt-In\" the members should retrieve mails. If \"Opt-Out\" none of the members should retrieve a mail for this Group.",
+   "fieldname": "optin_rule",
+   "fieldtype": "Select",
+   "label": "Opt-In Direction",
+   "options": "Opt-In\nOpt-Out",
+   "search_index": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-07-16 13:46:48.114201",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktSubscriberGroup",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

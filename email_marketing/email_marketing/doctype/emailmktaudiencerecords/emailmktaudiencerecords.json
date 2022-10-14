@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "creation": "2022-06-18 13:48:51.118935",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reference_doctype",
+  "reference_name"
+ ],
+ "fields": [
+  {
+   "default": "Contact",
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "ID",
+   "options": "reference_doctype",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-06-18 13:49:10.486586",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktAudienceRecords",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
