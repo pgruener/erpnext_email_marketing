@@ -1,10 +1,12 @@
-import frappe
-from frappe.utils.password import get_decrypted_password
-
 import json
 import boto3
 import requests
 import re
+import email
+import html
+
+import frappe
+from frappe.utils.password import get_decrypted_password
 
 from email_marketing.email_marketing.amazon_sns_validation import validate as valid_sns_message
 
@@ -92,11 +94,18 @@ def handle_s3_sns_message(message, email_receiver):
 		orig_user = frappe.session.user
 
 		try:
-			# attachment creation is not authorized with common users - prefer a super user or checkout correct permission
-			# fails in frappe.email.receive.py #save_attachments_in_doc() #587 (on _file.save())
-			frappe.set_user(email_receiver.receiving_user or 'Administrator')
+			# forward email (if any forwarding rules active)
+			forwarding_rules = email_receiver.matching_email_forwarding_rules(receipt['recipients'])
+			if forwarding_rules:
+				forward_email_via_ses([fr.forward_to for fr in forwarding_rules], email_account, email_mime, s3_session)
 
-			email_account.insert_communication(email_mime)
+			# if all of the matched forwarding rules are set to "skip_original_delivery", do not insert the communication
+			if next((True for rule in forwarding_rules if not rule.skip_original_delivery), True):
+				# attachment creation is not authorized with common users - prefer a super user or checkout correct permission
+				# fails in frappe.email.receive.py #save_attachments_in_doc() #587 (on _file.save())
+				frappe.set_user(email_receiver.receiving_user or 'Administrator')
+
+				email_account.insert_communication(email_mime)
 
 			# delete from s3
 			s3_session.client('s3').delete_object(Bucket=s3_bucket_name, Key=message_id)
@@ -141,4 +150,54 @@ def get_message_from_s3(session, bucket_name, message_id, bucket_prefix = None):
 # # https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/python/example_code/sns/sns_basics.py
 # import logging
 # logger = logging.getLogger(__name__)
+#
+# ultrahook rspgr http://erpnext.local:8001
 
+def forward_email_via_ses(recipients, email_account, email_mime, s3_session):
+	# Parse the email body.
+	mailobject = email.message_from_string(email_mime.decode('utf-8'))
+
+	# inject sender name into message
+	froms_src = mailobject['From'] if isinstance(mailobject['From'], list) else [mailobject['From']]
+	froms = []
+	for name_addr in (email.header.decode_header(from_) for from_ in froms_src):
+		# name = name_addr[0][0].decode(name_addr[0][1] or 'utf-8') if isinstance(name_addr[0][0], bytes) else name_addr[0][0]
+		addr = name_addr[1][0].decode(name_addr[1][1] or 'utf-8') if isinstance(name_addr[1][0], bytes) else name_addr[1][0]
+		# froms.append(f'{name}{addr}')
+		froms.append(addr)
+
+	injection = 'From:\n' + ';'.join(froms)
+
+	if mailobject.get('Cc'):
+		cc = mailobject['Cc'] if isinstance(mailobject['Cc'], list) else [mailobject['Cc']]
+		for single_cc in cc:
+			froms.append(single_cc) # add it to reply-to
+
+		injection = injection + '\nCc:\n' + '; '.join(cc)
+
+	injection = injection + '\n--\n\n'
+
+	if mailobject.is_multipart():
+		html_part = next((p for p in mailobject.get_payload() if p.get_content_type() == 'text/html'), mailobject.get_payload(0))
+
+		html_markup = re.sub(r'(<body[^>]*>)', '\\1' + html.escape(injection).replace('\n', '<br>'), html_part.get_payload(), flags=re.IGNORECASE)
+
+		html_part.set_payload(html_markup)
+	else:
+		text_part = mailobject.get_payload()
+		mailobject.set_payload(injection + text_part)
+
+	mailobject['Reply-To'] = froms[0] # ', '.join(froms)
+	mailobject.replace_header('Return-Path', email_account.email_id)
+	mailobject.replace_header('From', email_account.email_id)
+	mailobject.replace_header('To', '; '.join(recipients))
+
+	#
+	# Send the email:
+	client_ses = s3_session.client('ses')
+
+	client_ses.send_raw_email(
+			Source=email_account.email_id,
+			Destinations=recipients,
+			RawMessage={ 'Data': mailobject.as_string() }
+		)

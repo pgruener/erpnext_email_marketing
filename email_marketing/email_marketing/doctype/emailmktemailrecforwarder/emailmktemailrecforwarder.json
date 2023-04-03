@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-04-02 16:08:27.454757",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "inbound_email_addr_pattern",
+  "forward_to",
+  "skip_original_delivery"
+ ],
+ "fields": [
+  {
+   "description": "info@domain.tld | *@domain.tld ",
+   "fieldname": "inbound_email_addr_pattern",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inbound E-Mail Adress Pattern",
+   "reqd": 1
+  },
+  {
+   "description": "A single E-Mail address, to which it should be forwarded",
+   "fieldname": "forward_to",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Forward to",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "If set, the mail is forwarded, but thrown away afterwards (and not persisted here).",
+   "fieldname": "skip_original_delivery",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Skip Original Delivery"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2023-04-02 16:10:16.670628",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktEmailRecForwarder",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
