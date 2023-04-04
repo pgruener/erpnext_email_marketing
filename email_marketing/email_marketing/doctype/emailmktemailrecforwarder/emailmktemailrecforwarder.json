@@ -8,6 +8,7 @@
  "field_order": [
   "inbound_email_addr_pattern",
   "forward_to",
+  "forward_as",
   "skip_original_delivery"
  ],
  "fields": [
@@ -34,11 +35,21 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Skip Original Delivery"
+  },
+  {
+   "default": "Recipient",
+   "description": "Each address needs at least 1 recipient!",
+   "fieldname": "forward_as",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Forward as",
+   "options": "Recipient\nCc\nBcc",
+   "reqd": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-04-02 16:10:16.670628",
+ "modified": "2023-04-04 09:30:47.621438",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktEmailRecForwarder",

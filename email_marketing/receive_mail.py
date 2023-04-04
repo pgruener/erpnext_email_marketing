@@ -29,7 +29,6 @@ def receive_mail_via_sns():
 
 	handle_s3_sns_message(message, email_receiver)
 
-
 def handle_s3_sns_message(message, email_receiver):
 	if message['Type'] == 'SubscriptionConfirmation':
 		# The subscriptions needs to be confirmed by a separate GET call back to amazon.
@@ -94,13 +93,16 @@ def handle_s3_sns_message(message, email_receiver):
 		orig_user = frappe.session.user
 
 		try:
+			mailobject = email.message_from_string(email_mime.decode('utf-8'))
+			receivers = [r.strip() for r in (','.join(filter(None, [mailobject['To'], mailobject['Cc']]))).split(',')]
+
 			# forward email (if any forwarding rules active)
-			forwarding_rules = email_receiver.matching_email_forwarding_rules(receipt['recipients'])
+			forwarding_rules = email_receiver.matching_email_forwarding_rules(receivers)
 			if forwarding_rules:
-				forward_email_via_ses([fr.forward_to for fr in forwarding_rules], email_account, email_mime, s3_session)
+				forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_session)
 
 			# if all of the matched forwarding rules are set to "skip_original_delivery", do not insert the communication
-			if next((True for rule in forwarding_rules if not rule.skip_original_delivery), True):
+			if not forwarding_rules or next((True for rule in forwarding_rules if not rule.skip_original_delivery), False):
 				# attachment creation is not authorized with common users - prefer a super user or checkout correct permission
 				# fails in frappe.email.receive.py #save_attachments_in_doc() #587 (on _file.save())
 				frappe.set_user(email_receiver.receiving_user or 'Administrator')
@@ -153,27 +155,35 @@ def get_message_from_s3(session, bucket_name, message_id, bucket_prefix = None):
 #
 # ultrahook rspgr http://erpnext.local:8001
 
-def forward_email_via_ses(recipients, email_account, email_mime, s3_session):
-	# Parse the email body.
-	mailobject = email.message_from_string(email_mime.decode('utf-8'))
+def forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_session):
+	forward_recipients = list(set([fr.forward_to for fr in forwarding_rules if fr.forward_as == 'Recipient']))
+	forward_cc = list(set([fr.forward_to for fr in forwarding_rules if fr.forward_as == 'Cc']))
+	forward_bcc = list(set([fr.forward_to for fr in forwarding_rules if fr.forward_as == 'Bcc']))
+
+	# Usually there should be a categorized recipient. But if not, grab the first available other one.
+	if not forward_recipients:
+		if forward_cc:
+			forward_recipients = [forward_cc[0]]
+		elif forward_bcc:
+			forward_recipients = [forward_bcc[0]]
 
 	# inject sender name into message
 	froms_src = mailobject['From'] if isinstance(mailobject['From'], list) else [mailobject['From']]
 	froms = []
 	for name_addr in (email.header.decode_header(from_) for from_ in froms_src):
-		# name = name_addr[0][0].decode(name_addr[0][1] or 'utf-8') if isinstance(name_addr[0][0], bytes) else name_addr[0][0]
+		name = name_addr[0][0].decode(name_addr[0][1] or 'utf-8') if isinstance(name_addr[0][0], bytes) else name_addr[0][0]
 		addr = name_addr[1][0].decode(name_addr[1][1] or 'utf-8') if isinstance(name_addr[1][0], bytes) else name_addr[1][0]
-		# froms.append(f'{name}{addr}')
-		froms.append(addr)
 
-	injection = 'From:\n' + ';'.join(froms)
+		froms.append([(name or '').strip(), addr.strip()])
+
+	injection = 'From: {}\n'.format('; '.join([' '.join(f) for f in froms]) or '')
+	injection = '{}To: {}\n'.format(injection, '; '.join(mailobject['To']) if isinstance(mailobject['To'], list) else mailobject['To'] or '')
 
 	if mailobject.get('Cc'):
-		cc = mailobject['Cc'] if isinstance(mailobject['Cc'], list) else [mailobject['Cc']]
-		for single_cc in cc:
-			froms.append(single_cc) # add it to reply-to
+		injection =  '{}Cc: {}\n'.format(injection, mailobject['Cc'])
 
-		injection = injection + '\nCc:\n' + '; '.join(cc)
+	if mailobject.get('Bcc'):
+		injection =  '{}Bcc: {}\n'.format(injection, mailobject['Bcc'])
 
 	injection = injection + '\n--\n\n'
 
@@ -187,10 +197,25 @@ def forward_email_via_ses(recipients, email_account, email_mime, s3_session):
 		text_part = mailobject.get_payload()
 		mailobject.set_payload(injection + text_part)
 
-	mailobject['Reply-To'] = froms[0] # ', '.join(froms)
+	mailobject['Reply-To'] = froms[0][1] # ', '.join(froms)
 	mailobject.replace_header('Return-Path', email_account.email_id)
 	mailobject.replace_header('From', email_account.email_id)
-	mailobject.replace_header('To', '; '.join(recipients))
+	mailobject.replace_header('To', ', '.join(forward_recipients))
+
+	if mailobject.get('Cc'):
+		mailobject.replace_header('Cc', ', '.join(forward_cc) or None)
+	else:
+		mailobject['Cc'] = ', '.join(forward_cc) or None
+
+	# amz ses does not allow empty cc, so remove it if it was there from inbound mail or if it was initialized with empty value
+	if not mailobject['Cc']:
+		del mailobject['Cc']
+
+	if forward_bcc:
+		mailobject['Bcc'] = ', '.join(forward_bcc)
+
+	if not mailobject['Bcc']:
+		del mailobject['Bcc']
 
 	#
 	# Send the email:
@@ -198,6 +223,6 @@ def forward_email_via_ses(recipients, email_account, email_mime, s3_session):
 
 	client_ses.send_raw_email(
 			Source=email_account.email_id,
-			Destinations=recipients,
+			Destinations=list(set(forward_recipients + forward_cc + forward_bcc)),
 			RawMessage={ 'Data': mailobject.as_string() }
 		)

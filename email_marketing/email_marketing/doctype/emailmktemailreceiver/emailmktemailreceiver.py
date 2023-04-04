@@ -29,6 +29,10 @@ class EmailMktEmailReceiver(Document):
 		matching_rules = []
 		for email_forwarding_rule in self.email_forwarding_rules:
 			for inbound_email_addr in inbound_email_addresses:
+				# skip if rule is already appended in matching_rules
+				if email_forwarding_rule in matching_rules:
+					continue
+
 				if fnmatch.fnmatch((inbound_email_addr or '').lower(), (email_forwarding_rule.inbound_email_addr_pattern or '').lower()):
 					matching_rules.append(email_forwarding_rule)
 
