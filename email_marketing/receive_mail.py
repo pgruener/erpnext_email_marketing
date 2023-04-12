@@ -172,7 +172,12 @@ def forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_sessio
 	froms = []
 	for name_addr in (email.header.decode_header(from_) for from_ in froms_src):
 		name = name_addr[0][0].decode(name_addr[0][1] or 'utf-8') if isinstance(name_addr[0][0], bytes) else name_addr[0][0]
-		addr = name_addr[1][0].decode(name_addr[1][1] or 'utf-8') if isinstance(name_addr[1][0], bytes) else name_addr[1][0]
+
+		if len(name_addr) > 1:
+			addr = name_addr[1][0].decode(name_addr[1][1] or 'utf-8') if isinstance(name_addr[1][0], bytes) else name_addr[1][0]
+		else:
+			# in this case the mail address was not extracted from the header
+			name, addr = email.utils.parseaddr(name)
 
 		froms.append([(name or '').strip(), addr.strip()])
 
