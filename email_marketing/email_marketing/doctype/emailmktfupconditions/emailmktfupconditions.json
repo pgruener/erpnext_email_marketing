@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "creation": "2023-08-18 09:19:45.139840",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "comparison_side",
+  "doctype_column",
+  "operator",
+  "column_break_dyrzl",
+  "comparison_value",
+  "comparison_doctype",
+  "comparison_doctype_link"
+ ],
+ "fields": [
+  {
+   "fieldname": "comparison_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Comparison Doctype",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "comparison_doctype",
+   "fieldname": "comparison_doctype_link",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Comparison Doctype Link",
+   "options": "comparison_doctype"
+  },
+  {
+   "depends_on": "eval: !doc.comparison_doctype",
+   "fetch_from": "comparison_doctype_link.name",
+   "fieldname": "comparison_value",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Comparison Value"
+  },
+  {
+   "columns": 1,
+   "default": "=",
+   "fieldname": "operator",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Operator",
+   "options": "=\n!=\n<\n<=\n>\n>=",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dyrzl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "default": "Source",
+   "description": "Source: Declares the Conditions to be checked if the whole FollowUp Routine should be taken care of for the specified document.\n\nTarget: If the target doc is not identified by a custom method but by a (Dynamic) Link, Conditions help to identify the best (first) one matching, if there are ambiguities.",
+   "fieldname": "comparison_side",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Comparison Side",
+   "options": "Source\nTarget",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doctype_column",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Doctype Column",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2023-08-24 08:42:45.981801",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktFupConditions",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

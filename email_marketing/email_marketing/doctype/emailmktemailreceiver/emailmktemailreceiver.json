@@ -21,7 +21,8 @@
   "aws_sns_api_key",
   "aws_sns_api_secret",
   "section_break_14",
-  "email_account_mappings"
+  "email_account_mappings",
+  "email_forwarding_rules"
  ],
  "fields": [
   {
@@ -120,11 +121,17 @@
    "fieldtype": "Table",
    "label": "Matching E-Mail Accounts",
    "options": "EmailMktEmailReceiverAccounts"
+  },
+  {
+   "fieldname": "email_forwarding_rules",
+   "fieldtype": "Table",
+   "label": "E-Mail Forwarding Rules",
+   "options": "EmailMktEmailRecForwarder"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-11 12:03:50.801330",
+ "modified": "2023-04-02 16:15:36.090324",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktEmailReceiver",

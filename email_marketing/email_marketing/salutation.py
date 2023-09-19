@@ -72,11 +72,11 @@ def detect_salutation(matching_dict, salutations = None, skip_permutations=False
   for salutation_dict in salutations:
     exact_match = True
     for matching_key in matching_dict:
-      # print("\nmatching_key: {}     -      {}".format(matching_key, matching_dict[matching_key]))
+      print("\nmatching_key: {}     -      {}".format(matching_key, matching_dict[matching_key]))
 
       if matching_dict[matching_key] != salutation_dict.get(matching_key) and not ( not matching_dict[matching_key] and not salutation_dict.get(matching_key)):
         exact_match = False
-        # print("not matched ({})".format(salutation_dict.get(matching_key)))
+        print("not matched ({})".format(salutation_dict.get(matching_key)))
         break
 
     if exact_match:

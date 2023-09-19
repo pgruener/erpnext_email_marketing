@@ -1,0 +1,167 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Prompt",
+ "creation": "2023-08-18 10:09:07.745533",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "source_doctype",
+  "sync_target",
+  "sync_target_method",
+  "column_break_mxh79",
+  "target_doctype",
+  "target_doc_discovery",
+  "target_doc_discovery_column",
+  "target_doc_discovery_doctype_column",
+  "target_doc_discovery_custom_method",
+  "target_generation_method",
+  "section_break_71zwd",
+  "conditions",
+  "section_break_2tgr8",
+  "property_defaults",
+  "children_defaults",
+  "settings__values_section",
+  "fup_values"
+ ],
+ "fields": [
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Source DocType",
+   "options": "DocType",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "default": "0",
+   "description": "If this flag is set, the target doc should be updated on each update of the Source Document.\nAs this is not a generic behaviour, just a Method is called in the target DocType, which is called: \"sync_after_save_from(doc, fup_settings)\". \nThis method needs to be implemented on the Target DocType",
+   "fieldname": "sync_target",
+   "fieldtype": "Check",
+   "label": "Sync Target"
+  },
+  {
+   "depends_on": "sync_target",
+   "description": "If Sync Target is active, but the \"sync_after_save_from(doc, fup_settings)\" method can/should not be implemented on the target, a generic module/method can be permitted, which will be called (like: \"your_app.module_path.module.method_name\") with params: method_name(source_doc, target_doc, fup_settings).\nIf method returns False, the fup configured Property/Children Defaults are not applied. Furthermore save() is not called if False is returned.",
+   "fieldname": "sync_target_method",
+   "fieldtype": "Data",
+   "label": "Sync Target Method"
+  },
+  {
+   "fieldname": "column_break_mxh79",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target DocType",
+   "options": "DocType",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "description": "Before a DocType should be generated, its persistence should be checked.\nThis Persistence can be checked by associations like (Dynamic) Links, or by custom module methods.",
+   "fieldname": "target_doc_discovery",
+   "fieldtype": "Select",
+   "label": "Target Doc Discovery",
+   "options": "\nLink\nDynamic Link\nCustom Method"
+  },
+  {
+   "depends_on": "eval: doc.target_doc_discovery?.match(/Link$/)",
+   "fieldname": "target_doc_discovery_column",
+   "fieldtype": "Select",
+   "label": "Target Doc Discovery Column",
+   "mandatory_depends_on": "eval: doc.target_doc_discovery?.match(/Link$/)"
+  },
+  {
+   "depends_on": "eval: doc.target_doc_discovery === 'Custom Method'",
+   "description": "The module path to be called (like my_app.module.get_related_doc)\nWill call \"get_related_doc(source_target, fup_settings)\" and expect to either return a corresponding documents array, or a falsy value.",
+   "fieldname": "target_doc_discovery_custom_method",
+   "fieldtype": "Data",
+   "label": "Target Doc Discovery Custom Method",
+   "mandatory_depends_on": "eval: doc.target_doc_discovery === 'Custom Method'"
+  },
+  {
+   "description": "By default the target doctype will be just created with the default values mapped. If there needs to be be more logic, a custom module method can be implemented, which will be called after the basic mapping (like: \"your_app.module_path.module.create_fup_doc_from\") with params: create_fup_doc_from(source_doc, new_doc, fup_settings).\nThe implementation should manipulate new_doc while the return value is not respected yet.",
+   "fieldname": "target_generation_method",
+   "fieldtype": "Data",
+   "label": "Target Generation Method"
+  },
+  {
+   "depends_on": "eval: !doc.__islocal",
+   "fieldname": "section_break_71zwd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "conditions",
+   "fieldtype": "Table",
+   "label": "Conditions",
+   "options": "EmailMktFupConditions"
+  },
+  {
+   "depends_on": "eval: !doc.__islocal",
+   "fieldname": "section_break_2tgr8",
+   "fieldtype": "Section Break",
+   "label": "Defaults for Target Document"
+  },
+  {
+   "depends_on": "eval: doc.target_doc_discovery === 'Dynamic Link'",
+   "fieldname": "target_doc_discovery_doctype_column",
+   "fieldtype": "Select",
+   "label": "Target Doc Discovery Doctype Column",
+   "mandatory_depends_on": "eval: doc.target_doc_discovery === 'Dynamic Link'"
+  },
+  {
+   "description": "Every Child record definition starts with the `Child DocType` definition row. All following Column definitions belong to that previous doctype until the next row appears with another `Child DocType`",
+   "fieldname": "children_defaults",
+   "fieldtype": "Table",
+   "label": "Children Defaults",
+   "options": "EmailMktFupChildrenDefaults"
+  },
+  {
+   "fieldname": "property_defaults",
+   "fieldtype": "Table",
+   "label": "Property Defaults",
+   "options": "EmailMktFupDefaults"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval: doc.fup_values?.length || doc.sync_target_method || doc.target_generation_method",
+   "depends_on": "eval: !doc.__islocal",
+   "fieldname": "settings__values_section",
+   "fieldtype": "Section Break",
+   "label": "Settings / Values"
+  },
+  {
+   "description": "If there is custom logic behind a sync or target-generation (by setting a custom code), it might be useful to add configuration for several properties in a generic way.\nIn this table those values may be set as static value or as link to an existing document, if a referencial integrity should be kept.",
+   "fieldname": "fup_values",
+   "fieldtype": "Table",
+   "options": "EmailMktDocTypeFupValues"
+  }
+ ],
+ "links": [],
+ "modified": "2023-09-10 14:59:13.545576",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktDocTypeFup",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

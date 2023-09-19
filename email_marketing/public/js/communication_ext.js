@@ -97,17 +97,6 @@ if (frappe.views?.CommunicationComposer && !frappe.views.CommunicationComposer.e
       }
     });
 
-    // change handler of "Add Signature" Button to detect the correct signature
-    let signatureButton = fields.find(f => f.fieldname === 'add_signature')
-    signatureButton.click = async () => {
-      const sender_email = me.dialog.get_value('sender');
-
-      this.message = me.dialog.get_value('content')
-      this.content_set = false;
-
-      await this.set_content(sender_email);
-    }
-
     return fields;
   }
 

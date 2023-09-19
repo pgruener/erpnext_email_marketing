@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "creation": "2023-09-10 13:26:24.511728",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "identifier",
+  "from_doctype",
+  "doctype_reference",
+  "column_break_sw0ln",
+  "value"
+ ],
+ "fields": [
+  {
+   "fieldname": "identifier",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Identifier"
+  },
+  {
+   "fieldname": "from_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "From DocType",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "from_doctype",
+   "fieldname": "doctype_reference",
+   "fieldtype": "Dynamic Link",
+   "label": "DocType Reference",
+   "options": "from_doctype"
+  },
+  {
+   "fieldname": "column_break_sw0ln",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "doctype_reference.name",
+   "fieldname": "value",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Value",
+   "read_only_depends_on": "from_doctype"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2023-09-10 13:33:27.615575",
+ "modified_by": "Administrator",
+ "module": "Email Marketing",
+ "name": "EmailMktDocTypeFupValues",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
