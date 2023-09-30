@@ -18,7 +18,7 @@ from base64 import encodebytes as _bencode
 #   from base64 import encodestring as _bencode
 
 
-class EmailMktCampaignEmail(Document):
+class EmailMktCampaignNode(Document):
 	def init_from_campaign(self, campaign_doc):
 		# self._generated = False
 		if hasattr(self, 'campaign_doc'):
@@ -29,7 +29,7 @@ class EmailMktCampaignEmail(Document):
 		self.campaign_doc = campaign_doc
 		self.subscriber_group_doc = frappe.get_cached_doc('EmailMktSubscriberGroup', self.campaign_doc.subscriber_group) if self.campaign_doc.subscriber_group else None
 		# self.based_on_doc = frappe.get_cached_doc(self.doctype, self.based_on) if self.based_on else None
-		self.based_on_doc = next((n for n in campaign_doc.campaign_emails if n.name == self.based_on), None) if self.based_on else None
+		self.based_on_doc = next((n for n in campaign_doc.campaign_nodes if n.name == self.based_on), None) if self.based_on else None
 
 	def is_root_node(self):
 		# Wait & Combine nodes are considered as root-nodes, as they're event driven, but should still be
@@ -44,7 +44,7 @@ class EmailMktCampaignEmail(Document):
 		Not all nodes are able to receive events, like conditional ones like *Combine* or *Wait*.
 		This method returns True or False if it is a receiver node or not.
 		"""
-		if self.entry_type == 'Email' or self.entry_type == 'Wait for Event':
+		if self.entry_type == 'Message' or self.entry_type == 'Wait for Event':
 			return True
 		return False
 
@@ -127,24 +127,24 @@ class EmailMktCampaignEmail(Document):
 													.distinct()
 												)
 
-		if self.entry_type == 'Email':
-			q = base_event_query.where(stream_head.entry_type == 'E-Mail sent')
+		if self.entry_type == 'Message':
+			q = base_event_query.where(stream_head.entry_type == 'Message sent')
 		elif self.entry_type == 'Wait for Event':
 			q = base_event_query.where(stream_head.entry_type == self.wait_for_event_type)
 
-			if self.wait_for_event_type == 'Clicked Link in E-Mail':
-				if self.wait_event_in_email_link_pattern:
-					q = q.where(stream_head.optional_parameter_1.like(self.wait_event_in_email_link_pattern))
-			elif self.wait_for_event_type == 'Opened E-Mail':
-				q = q.where(stream_head.optional_parameter_1 == self.wait_event_in_email)
+			if self.wait_for_event_type == 'Clicked Link':
+				if self.wait_event_link_click_pattern:
+					q = q.where(stream_head.optional_parameter_1.like(self.wait_event_link_click_pattern))
+			elif self.wait_for_event_type == 'Opened Message':
+				q = q.where(stream_head.optional_parameter_1 == self.wait_for_event_of_node)
 			elif self.wait_for_event_type.startswith('Tag '): # 'Tag added' / 'Tag removed'
 				q = q.where(stream_head.optional_parameter_1 == self.waiting_for_tag)
 			elif self.wait_for_event_type == 'Subscribed in Group' or self.wait_for_event_type == 'Unsubscribed in Group':
 				q = q.where(stream_head.optional_parameter_1 == self.wait_for_group_change)
-			elif self.wait_for_event_type == 'E-Mail sent':
-				q = q.where(stream_head.optional_parameter_1 == (self.wait_event_in_email_campaign or self.campaign_doc.name))
-				if self.wait_event_in_email:
-					q = q.where(stream_head.optional_parameter_2 == self.wait_event_in_email)
+			elif self.wait_for_event_type == 'Message sent':
+				q = q.where(stream_head.optional_parameter_1 == (self.wait_for_event_in_other_campaign or self.campaign_doc.name))
+				if self.wait_for_event_of_node:
+					q = q.where(stream_head.optional_parameter_2 == self.wait_for_event_of_node)
 		# elif self.entry_type.startswith('Wait'):
 		# 	return # Wait* nodes dont retrieve events
 
@@ -203,9 +203,9 @@ class EmailMktCampaignEmail(Document):
 			return
 
 		# preconditions are met for this receipient. -> perform action
-		if self.entry_type == 'Email':
+		if self.entry_type == 'Message':
 			# just send the emails to the detected receipients
-			receipient['event'] = self.insert_event('E-Mail sent', receipient)
+			receipient['event'] = self.insert_event('Message sent', receipient)
 			self.campaign_doc.prepare_and_send_email(self, receipient['reference_doctype'], receipient['reference_name'], receipient['email_id'], event=receipient['event'])
 		# TODO other entry-types like "add/remove Tag", "stop campaign for receipient" ...
 
@@ -319,11 +319,11 @@ class EmailMktCampaignEmail(Document):
 					# schedule_in = frappe.utils.time_diff_in_seconds(self.scheduled_at, now_datetime()) / 60
 					# self.mark_for_reschedule(frappe.utils.time_diff_in_seconds(self.scheduled_at, now_datetime()) / 60)
 					return self.scheduled_at
-			elif self.send_after_days or self.send_after_hours:
+			elif self.schedule_after_days or self.schedule_after_hours:
 				# get timediff to event source (receipient event_creation)
 				should_run_at = frappe.utils.add_to_date(	receipient['event_creation'],
-																									days=self.send_after_days if self.send_after_days else 0,
-																									hours=self.send_after_hours if self.send_after_hours else 0)
+																									days=self.schedule_after_days if self.schedule_after_days else 0,
+																									hours=self.schedule_after_hours if self.schedule_after_hours else 0)
 				if should_run_at > now_datetime():
 					# delay continuation for this receipient if node is configured to wait a specific time
 					self.mark_for_reschedule(should_run_at)
@@ -337,7 +337,7 @@ class EmailMktCampaignEmail(Document):
 		return False # no blocking preconditions left
 
 	def dependend_nodes(self):
-		return [n for n in self.campaign_doc.campaign_emails if n.based_on == self.name and not n.is_root_node()]
+		return [n for n in self.campaign_doc.campaign_nodes if n.based_on == self.name and not n.is_root_node()]
 
 	def prepare_email(self, receipient_email_address, target_doc, **args):
 		production_email = False
@@ -372,7 +372,7 @@ class EmailMktCampaignEmail(Document):
 				elif key.startswith('open_tracking_image'):
 					transmission_variables[key] = ''
 
-		rendered_mail = frappe.render_template(self.email_body or '', transmission_variables)
+		rendered_mail = frappe.render_template(self.message_body or '', transmission_variables)
 
 		if self.parent_doc.email_signature:
 			signature = frappe.get_cached_doc('Email Template', self.parent_doc.email_signature)

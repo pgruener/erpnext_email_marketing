@@ -17,7 +17,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Reference DocType",
-   "options": "EmailMktCampaign\nEmailMktCampaignEmail",
+   "options": "EmailMktCampaign\nEmailMktCampaignNode",
    "reqd": 1
   },
   {

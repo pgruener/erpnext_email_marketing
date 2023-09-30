@@ -29,7 +29,7 @@ class EmailMktCampaign(Document):
 
 		self.nodes_initialized = True
 
-		for structured_node in self.campaign_emails:
+		for structured_node in self.campaign_nodes:
 			structured_node.init_from_campaign(self)
 
 
@@ -96,7 +96,7 @@ class EmailMktCampaign(Document):
 		frappe.db.auto_commit_on_many_writes = not frappe.flags.in_test
 
 		# run all root_nodes
-		for root_node in [n for n in self.campaign_emails if n.is_root_node()]:
+		for root_node in [n for n in self.campaign_nodes if n.is_root_node()]:
 			root_node.evaluate_node()
 
 		frappe.db.auto_commit_on_many_writes = is_auto_commit_set
@@ -115,7 +115,7 @@ class EmailMktCampaign(Document):
 		schedule_reschedule_in_general = False
 		reschedule_in = None
 
-		for child_node in self.campaign_emails:
+		for child_node in self.campaign_nodes:
 			schedule_in = child_node.is_marked_for_reschedule()
 			if not schedule_in:
 				continue
@@ -147,7 +147,7 @@ class EmailMktCampaign(Document):
 		builds the recipients base to be addressed.
 		It also can be an event-driven automation campaign, which then doesn't have any audience defined.
 		"""
-		return len(self.campaign_emails) > 0
+		return len(self.campaign_nodes) > 0
 
 	@frappe.whitelist()
 	def generate_audiences(self, count_only=True, only_first_package=False, limit=None):
@@ -278,7 +278,7 @@ class EmailMktCampaign(Document):
 			subject=prepared_email_dict['subject'],
 			sender=prepared_email_dict['sender_name'],
 			recipients=[prepared_email_dict['to_address']],
-			message=prepared_email_dict['email_body'],
+			message=prepared_email_dict['message_body'],
 			# attachments=self.get_attachments(), # TODO single attachment in child table possible, otherwise refer to an Email Template
 			# inline_images= # TODO
 			# template='newsletter', # TODO: render in the native template before
@@ -296,7 +296,7 @@ class EmailMktCampaign(Document):
 
 	def get_node_by_name(self, name):
 		if isinstance(name, str):
-			return next((e for e in self.campaign_emails if e.name == name), None)
+			return next((e for e in self.campaign_nodes if e.name == name), None)
 			# preparation_email.onload() # initializer doesnt run for loaded children
 		else:
 			# return object, if that was permitted
@@ -306,7 +306,7 @@ class EmailMktCampaign(Document):
 	@frappe.whitelist(methods='POST')
 	def prepare_email(self, email_name_or_node, receiver_doctype_or_doc, receiver_id=None, email_id=None):
 		# if isinstance(email_name_or_node, str):
-		# 	preparation_email = next((e for e in self.campaign_emails if e.name == email_name_or_node), None)
+		# 	preparation_email = next((e for e in self.campaign_nodes if e.name == email_name_or_node), None)
 		# 	preparation_email.onload() # initializer doesnt run for loaded children
 		# else:
 		# 	preparation_email = email_name_or_node
@@ -335,7 +335,7 @@ class EmailMktCampaign(Document):
 		elif self.sender_name_source == 'Freetext':
 			different_sender_name = self.alternative_sender_name
 
-		subject, email_body = preparation_email.prepare_email(receipient_doc.email_id, receipient_doc, **{
+		subject, message_body = preparation_email.prepare_email(receipient_doc.email_id, receipient_doc, **{
 			# 'user': sending_user,
 			'different_sender': self.sending_user,
 			'different_sender_name': different_sender_name,
@@ -352,7 +352,7 @@ class EmailMktCampaign(Document):
 			'sender_name': sender_name,
 			'to_address': to_address,
 			'subject': subject,
-			'email_body': email_body,
+			'message_body': message_body,
 			'test_email_receipient': sending_user.name,
 			'email_node': preparation_email
 		}

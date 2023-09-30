@@ -9,7 +9,6 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "campaign_type",
   "sending_user",
   "email_account",
   "sender_name_source",
@@ -21,12 +20,11 @@
   "campaign",
   "company",
   "subscriber_group",
+  "amended_from",
   "audience_section",
   "target_audiences",
-  "automation_section",
-  "amended_from",
   "section_break_11",
-  "campaign_emails"
+  "campaign_nodes"
  ],
  "fields": [
   {
@@ -37,18 +35,6 @@
    "label": "Title",
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "default": "Newsletter",
-   "fieldname": "campaign_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Campaign Type",
-   "options": "Newsletter\nAutomation",
-   "reqd": 1,
-   "set_only_once": 1,
-   "translatable": 1
   },
   {
    "fieldname": "column_break_3",
@@ -68,7 +54,6 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.campaign_type === 'Newsletter'",
    "fieldname": "audience_section",
    "fieldtype": "Section Break",
    "label": "Audience"
@@ -78,12 +63,6 @@
    "fieldtype": "Table",
    "label": "Target Audiences",
    "options": "EmailMktCampaignAudiences"
-  },
-  {
-   "depends_on": "eval:doc.campaign_type === 'Automation'",
-   "fieldname": "automation_section",
-   "fieldtype": "Section Break",
-   "label": "Automation"
   },
   {
    "fieldname": "amended_from",
@@ -103,15 +82,8 @@
    "search_index": 1
   },
   {
-   "depends_on": "eval:doc.campaign_type === 'Newsletter'",
    "fieldname": "section_break_11",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "campaign_emails",
-   "fieldtype": "Table",
-   "label": "Structured Nodes",
-   "options": "EmailMktCampaignEmail"
   },
   {
    "fieldname": "email_signature",
@@ -166,13 +138,20 @@
    "read_only_depends_on": "eval:doc.status !== 'Planned'",
    "reqd": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "campaign_nodes",
+   "fieldtype": "Table",
+   "label": "Structured Nodes",
+   "options": "EmailMktCampaignNode"
   }
  ],
  "links": [],
- "modified": "2022-08-02 12:03:50.576587",
+ "modified": "2023-09-30 14:57:21.561848",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktCampaign",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -205,5 +184,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

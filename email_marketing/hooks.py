@@ -9,6 +9,13 @@ app_color = "grey"
 app_email = "beratung@royal-software.de"
 app_license = "MIT"
 
+
+fixtures = [
+  # export all records from the following doctypes
+  "EmailMktEventType"
+]
+
+
 # Includes in <head>
 # ------------------
 
@@ -60,7 +67,7 @@ doctype_js = {
 # ------------
 
 # before_install = "email_marketing.install.before_install"
-# after_install = "email_marketing.install.after_install"
+after_install = "email_marketing.install.after_install"
 
 # Uninstallation
 # ------------

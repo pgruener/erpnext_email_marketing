@@ -91,7 +91,7 @@ def open(name: str = None):
 		if name and frappe.db.exists('EmailMktEventStream', name):
 			frappe.get_doc({
 				'doctype': 'EmailMktEventStream',
-				'entry_type': 'Opened E-Mail',
+				'entry_type': 'Opened Message',
 				'reference_doctype': 'EmailMktEventStream',
 				'reference_name': name,
 			}).insert(ignore_permissions=True)
@@ -137,7 +137,7 @@ def click(tgt: str, name: str = None):
 		reference_doctype, reference_name = frappe.db.get_value('EmailMktEventStream', name, ['reference_doctype', 'reference_name'])
 		frappe.get_doc({
 				'doctype': 'EmailMktEventStream',
-				'entry_type': 'Clicked Link in E-Mail',
+				'entry_type': 'Clicked Link',
 				'reference_doctype': reference_doctype,
 				'reference_name': reference_name,
 				'optional_parameter_1': frappe.local.response['location']
@@ -146,7 +146,7 @@ def click(tgt: str, name: str = None):
 @frappe.whitelist(allow_guest=True, methods=['GET'])
 def unsubscribe(name: str = None, campaign: str = None, general: str = None, spam: str = None):
 	"""
-	Unsubscribes from a campaign group - the communication references a campaign node (EmailMktCampaignEmail),
+	Unsubscribes from a campaign group - the communication references a campaign node (EmailMktCampaignNode),
 	which knowns the campaign and the group.
 
 	name = `EmailMktEventStream` Name
@@ -160,9 +160,9 @@ def unsubscribe(name: str = None, campaign: str = None, general: str = None, spa
 
 	sent_event = frappe.get_doc('EmailMktEventStream', name)
 	sent_email_element = frappe.get_last_doc('Email Queue', filters={'reference_doctype': 'EmailMktEventStream', 'reference_name': name})
-	campaign_doc = frappe.get_cached_doc('EmailMktCampaign', frappe.db.get_value('EmailMktCampaignEmail', sent_event.nodes[0].connected_node, 'parent'))
+	campaign_doc = frappe.get_cached_doc('EmailMktCampaign', frappe.db.get_value('EmailMktCampaignNode', sent_event.nodes[0].connected_node, 'parent'))
 
-	# subscriber_group_name = frappe.db.get_value('EmailMktCampaign', frappe.db.get_value('EmailMktCampaignEmail', sent_event.nodes[0].connected_node, 'parent'), 'subscriber_group')
+	# subscriber_group_name = frappe.db.get_value('EmailMktCampaign', frappe.db.get_value('EmailMktCampaignNode', sent_event.nodes[0].connected_node, 'parent'), 'subscriber_group')
 	# subscriber_group_optin_direction = frappe.db.get_value('EmailMktSubscriberGroup', subscriber_group_name, 'optin_rule') if subscriber_group_name else None
 	subscriber_group_optin_direction = frappe.db.get_value('EmailMktSubscriberGroup', campaign_doc.subscriber_group, 'optin_rule') if campaign_doc.subscriber_group else None
 

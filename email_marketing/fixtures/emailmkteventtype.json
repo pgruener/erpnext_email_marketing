@@ -1,0 +1,86 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Clicked Link",
+  "modified": "2023-09-30 16:33:20.181600",
+  "name": "Clicked Link"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Opened Message",
+  "modified": "2023-09-30 16:33:20.345911",
+  "name": "Opened Message"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Tag added",
+  "modified": "2023-09-30 16:33:20.347696",
+  "name": "Tag added"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Tag removed",
+  "modified": "2023-09-30 16:33:20.349273",
+  "name": "Tag removed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Subscribed in Group",
+  "modified": "2023-09-30 16:33:20.350866",
+  "name": "Subscribed in Group"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Subscribed in general",
+  "modified": "2023-09-30 16:33:20.352379",
+  "name": "Subscribed in general"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Unsubscribed from Campaign",
+  "modified": "2023-09-30 16:33:20.353926",
+  "name": "Unsubscribed from Campaign"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Unsubscribed from Group",
+  "modified": "2023-09-30 16:33:20.355944",
+  "name": "Unsubscribed from Group"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Unsubscribed in general",
+  "modified": "2023-09-30 16:33:20.357669",
+  "name": "Unsubscribed in general"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Unsubscribed via Spam categorization",
+  "modified": "2023-09-30 16:33:20.359160",
+  "name": "Unsubscribed via Spam categorization"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Message sent",
+  "modified": "2023-09-30 16:33:20.360655",
+  "name": "Message sent"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "EmailMktEventType",
+  "event_type": "Custom Event",
+  "modified": "2023-09-30 16:33:20.362235",
+  "name": "Custom Event"
+ }
+]

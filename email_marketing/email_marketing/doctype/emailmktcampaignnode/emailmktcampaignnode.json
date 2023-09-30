@@ -7,17 +7,19 @@
  "field_order": [
   "based_on",
   "entry_type",
+  "message_channel",
   "description",
   "column_break_1",
   "scheduled_at",
-  "send_after_days",
-  "send_after_hours",
+  "schedule_after_days",
+  "schedule_after_hours",
   "wait_for_section",
   "wait_for_event_type",
+  "wait_for_custom_event",
   "column_break_9",
-  "wait_event_in_email_campaign",
-  "wait_event_in_email",
-  "wait_event_in_email_link_pattern",
+  "wait_for_event_in_other_campaign",
+  "wait_for_event_of_node",
+  "wait_event_link_click_pattern",
   "waiting_for_tag",
   "wait_for_group_change",
   "section_combine",
@@ -31,7 +33,7 @@
   "mailform",
   "section_break_2",
   "subject",
-  "email_body",
+  "message_body",
   "attachment",
   "column_break_3",
   "btn_test_email",
@@ -42,32 +44,18 @@
    "fieldname": "subject",
    "fieldtype": "Data",
    "label": "Subject",
-   "mandatory_depends_on": "eval:doc.entry_type === 'Email' && !doc.mailform",
-   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.mailform"
+   "mandatory_depends_on": "eval:doc.entry_type === 'Message' && !doc.mailform",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Message' || doc.mailform"
   },
   {
-   "depends_on": "eval:doc.entry_type != 'Combine' && doc.entry_type != 'Wait for Event' && (!doc.send_after_days && !doc.send_after_hours)",
+   "depends_on": "eval:(doc.entry_type == 'Message' || doc.entry_type == 'Wait') && (!doc.schedule_after_days && !doc.schedule_after_hours)",
    "fieldname": "scheduled_at",
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Scheduled At"
   },
   {
-   "fieldname": "email_body",
-   "fieldtype": "Text Editor",
-   "label": "E-Mail",
-   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.mailform"
-  },
-  {
-   "depends_on": "eval:doc.entry_type != 'Combine' && !doc.scheduled_at",
-   "fieldname": "send_after_days",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Send after days",
-   "precision": "2"
-  },
-  {
-   "depends_on": "eval:doc.entry_type === 'Email'",
+   "depends_on": "eval:doc.entry_type === 'Message'",
    "fieldname": "column_break_3",
    "fieldtype": "Section Break"
   },
@@ -84,59 +72,53 @@
    "in_list_view": 1,
    "label": "Test",
    "precision": "2",
-   "read_only_depends_on": "eval:doc.entry_type !== 'Email'"
+   "read_only_depends_on": "eval:doc.entry_type !== 'Message' && doc.message_channel !== 'Email'"
   },
   {
    "columns": 1,
    "fieldname": "mailform",
    "fieldtype": "Link",
    "label": "Mailform",
-   "mandatory_depends_on": "eval:doc.entry_type === 'Email' && !doc.subject",
+   "mandatory_depends_on": "eval:doc.entry_type === 'Message' && !doc.subject",
    "options": "Email Template",
-   "read_only_depends_on": "eval:doc.entry_type !== 'Email' || doc.subject"
+   "read_only_depends_on": "eval:doc.entry_type !== 'Message' || doc.subject"
   },
   {
-   "collapsible_depends_on": "eval:doc.mailform && doc.entry_type === 'Email'",
-   "depends_on": "eval:!doc.mailform && doc.entry_type === 'Email'",
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.mailform && doc.entry_type === 'Message'",
+   "depends_on": "eval:!doc.mailform && doc.entry_type === 'Message'",
    "fieldname": "section_break_2",
    "fieldtype": "Section Break",
-   "label": "Define Inline E-Mail"
+   "label": "Define Inline Message"
   },
   {
-   "collapsible_depends_on": "eval:doc.subject && doc.entry_type === 'Email'",
-   "depends_on": "eval:!doc.subject && doc.entry_type === 'Email'",
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.subject && doc.entry_type === 'Message'",
+   "depends_on": "eval:!doc.subject && doc.entry_type === 'Message'",
    "fieldname": "section_break_1",
    "fieldtype": "Section Break",
-   "label": "Choose E-Mail from Template"
-  },
-  {
-   "depends_on": "eval:doc.entry_type != 'Combine' && !doc.scheduled_at",
-   "fieldname": "send_after_hours",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Send after hours",
-   "precision": "2"
+   "label": "Choose Message from Template"
   },
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
   },
   {
-   "columns": 1,
+   "columns": 2,
    "fieldname": "based_on",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Based On",
-   "options": "EmailMktCampaignEmail",
+   "options": "EmailMktCampaignNode",
    "search_index": 1
   },
   {
-   "default": "Email",
+   "default": "Message",
    "fieldname": "entry_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Email\nWait\nWait for Event\nCombine",
+   "options": "Message\nRaise Custom Event\nWait\nWait for Event\nCombine\nCreate Event (DocType)",
    "reqd": 1,
    "search_index": 1
   },
@@ -147,25 +129,12 @@
    "label": "Wait for Event"
   },
   {
-   "default": "Wait scheduled time",
+   "default": "Opened Message",
    "fieldname": "wait_for_event_type",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Wait for Event Type",
    "mandatory_depends_on": "eval:doc.entry_type === 'Wait'",
-   "options": "Clicked Link in E-Mail\nOpened E-Mail\nTag added\nTag removed\nSubscribed in Group\nSubscribed in general\nUnsubscribed from Campaign\nUnsubscribed from Group\nUnsubscribed in general\nUnsubscribed via Spam categorization\nE-Mail sent\nWait scheduled time"
-  },
-  {
-   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail', 'Opened E-Mail', 'E-Mail sent'].indexOf(doc.wait_for_event_type) !== -1",
-   "fieldname": "wait_event_in_email_campaign",
-   "fieldtype": "Link",
-   "label": "Wait Event in E-Mail Campaign",
-   "options": "EmailMktCampaign"
-  },
-  {
-   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail'].indexOf(doc.wait_for_event_type) !== -1",
-   "fieldname": "wait_event_in_email_link_pattern",
-   "fieldtype": "Data",
-   "label": "Wait Event in E-Mail Link Pattern"
+   "options": "EmailMktEventType"
   },
   {
    "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Tag added', 'Tag removed'].indexOf(doc.wait_for_event_type) !== -1",
@@ -199,7 +168,7 @@
    "fieldtype": "Link",
    "label": "Combination Layer 1",
    "mandatory_depends_on": "eval: doc.entry_type === 'Combine'",
-   "options": "EmailMktCampaignEmail"
+   "options": "EmailMktCampaignNode"
   },
   {
    "fieldname": "column_break_16",
@@ -217,14 +186,7 @@
    "fieldtype": "Link",
    "label": "Combination Layer 2",
    "mandatory_depends_on": "eval: doc.entry_type === 'Combine'",
-   "options": "EmailMktCampaignEmail"
-  },
-  {
-   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link in E-Mail', 'Opened E-Mail', 'E-Mail sent'].indexOf(doc.wait_for_event_type) !== -1",
-   "fieldname": "wait_event_in_email",
-   "fieldtype": "Link",
-   "label": "Wait Event in E-Mail ",
-   "options": "EmailMktCampaignEmail"
+   "options": "EmailMktCampaignNode"
   },
   {
    "fieldname": "column_break_9",
@@ -248,17 +210,77 @@
    "fieldtype": "Select",
    "label": "Combination Type",
    "options": "And\nOr"
+  },
+  {
+   "depends_on": "eval: doc.wait_for_event_type === 'Custom Event'",
+   "fieldname": "wait_for_custom_event",
+   "fieldtype": "Data",
+   "label": "Wait for Custom Event",
+   "mandatory_depends_on": "eval: doc.wait_for_event_type === 'Custom Event'"
+  },
+  {
+   "depends_on": "eval:(doc.entry_type == 'Message' || doc.entry_type == 'Wait') && !doc.scheduled_at",
+   "fieldname": "schedule_after_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Schedule after days",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:(doc.entry_type == 'Message' || doc.entry_type == 'Wait') && !doc.scheduled_at",
+   "fieldname": "schedule_after_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Schedule after hours",
+   "precision": "2"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_event_link_click_pattern",
+   "fieldtype": "Data",
+   "label": "Wait Event Link Click Pattern"
+  },
+  {
+   "fieldname": "message_body",
+   "fieldtype": "Text Editor",
+   "label": "Message",
+   "read_only_depends_on": "eval:doc.entry_type !== 'Message' || doc.mailform"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link', 'Opened Message', 'Message sent'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_for_event_in_other_campaign",
+   "fieldtype": "Link",
+   "label": "Wait for Event in another Campaign",
+   "options": "EmailMktCampaign"
+  },
+  {
+   "depends_on": "eval:doc.entry_type === 'Wait for Event' && ['Clicked Link', 'Opened Message', 'Message sent'].indexOf(doc.wait_for_event_type) !== -1",
+   "fieldname": "wait_for_event_of_node",
+   "fieldtype": "Link",
+   "label": "Wait for Event of Node",
+   "options": "EmailMktCampaignNode"
+  },
+  {
+   "depends_on": "eval: doc.entry_type === 'Message'",
+   "fieldname": "message_channel",
+   "fieldtype": "Select",
+   "label": "Message Channel",
+   "mandatory_depends_on": "eval: doc.entry_type === 'Message'",
+   "options": "Email\nSMS\nWhatsapp\nChat"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-08-02 18:38:03.843638",
+ "modified": "2023-09-30 16:59:15.492104",
  "modified_by": "Administrator",
  "module": "Email Marketing",
- "name": "EmailMktCampaignEmail",
+ "name": "EmailMktCampaignNode",
  "owner": "Administrator",
  "permissions": [],
  "search_fields": "entry_type,description,subject",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "description"
 }

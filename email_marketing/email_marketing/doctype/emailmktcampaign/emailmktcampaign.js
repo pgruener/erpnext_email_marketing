@@ -43,8 +43,25 @@ frappe.ui.form.on('EmailMktCampaign', {
 			}
 		}
 
-		if (frm.fields_dict?.campaign_emails?.grid) {
-			frm.fields_dict.campaign_emails.grid.get_field('based_on').get_query = (_doc, _cdt, cdn) => {
+		frm.set_query('wait_for_event_in_other_campaign', 'campaign_nodes', () => {
+			return {
+				filters: {
+					'name': ['!=', frm.doc.name]
+				}
+			}
+		});
+
+		frm.set_query('wait_for_event_of_node', 'campaign_nodes', (doc, _cdt, cdn) => {
+			return {
+				filters: {
+					'parent': doc.campaign_nodes.find(n => n.name === cdn)?.wait_for_event_in_other_campaign || doc.name,
+					'name': ['!=', cdn]
+				}
+			}
+		});
+
+		if (frm.fields_dict?.campaign_nodes?.grid) {
+			frm.fields_dict.campaign_nodes.grid.get_field('based_on').get_query = (_doc, _cdt, cdn) => {
 				return {
 					filters: {
 						'parent': doc.name,
@@ -53,16 +70,7 @@ frappe.ui.form.on('EmailMktCampaign', {
 				}
 			}
 
-			frm.fields_dict.campaign_emails.grid.get_field('wait_event_in_email').get_query = (doc, cdt, cdn) => {
-				return {
-					filters: {
-						'parent': locals[cdt][cdn]?.wait_event_in_email_campaign || doc.name,
-						'name': ['!=', cdn]
-					}
-				}
-			}
-
-			frm.fields_dict.campaign_emails.grid.get_field('combination_layer_1').get_query = (doc, _cdt, cdn) => {
+			frm.fields_dict.campaign_nodes.grid.get_field('combination_layer_1').get_query = (doc, _cdt, cdn) => {
 				return {
 					filters: {
 						'parent': doc.name,
@@ -71,7 +79,7 @@ frappe.ui.form.on('EmailMktCampaign', {
 				}
 			}
 
-			frm.fields_dict.campaign_emails.grid.get_field('combination_layer_2').get_query = (doc, _cdt, cdn) => {
+			frm.fields_dict.campaign_nodes.grid.get_field('combination_layer_2').get_query = (doc, _cdt, cdn) => {
 				return {
 					filters: {
 						'parent': doc.name,
@@ -79,8 +87,8 @@ frappe.ui.form.on('EmailMktCampaign', {
 					}
 				}
 			}
-			// if (frm.fields_dict?.campaign_emails?.grid && !Object.entries(frm.fields_dict.campaign_emails.grid.custom_buttons).length) {
-				// frm.fields_dict.campaign_emails.grid.add_custom_button(__('Test Mail'), this.btn_test_email.bind(this));
+			// if (frm.fields_dict?.campaign_nodes?.grid && !Object.entries(frm.fields_dict.campaign_nodes.grid.custom_buttons).length) {
+				// frm.fields_dict.campaign_nodes.grid.add_custom_button(__('Test Mail'), this.btn_test_email.bind(this));
 		}
 
 		frm.events.setup_dashboard(frm);
@@ -123,13 +131,13 @@ frappe.ui.form.on('EmailMktCampaign', {
 	},
 
 	// btn_test_email(_event) {
-	// 	const selectedRecords = cur_frm.fields_dict.campaign_emails.grid.get_selected();
+	// 	const selectedRecords = cur_frm.fields_dict.campaign_nodes.grid.get_selected();
 
 	// 	if (!selectedRecords.length) {
 	// 		return
 	// 	}
 
-  //   for (let row of cur_frm.fields_dict.campaign_emails.grid.get_data()) {
+  //   for (let row of cur_frm.fields_dict.campaign_nodes.grid.get_data()) {
   //     if (selectedRecords.findIndex(sel => sel === row.name) === -1) {
   //       continue;
   //     }
@@ -138,14 +146,14 @@ frappe.ui.form.on('EmailMktCampaign', {
 	// }
 });
 
-frappe.ui.form.on('EmailMktCampaignEmail', {
+frappe.ui.form.on('EmailMktCampaignNode', {
 	async btn_test_email(frm, cdt, cdn) {
 		// const row = locals[cdt][cdn];
-		// let attrValue = frappe.model.get_value(row.doctype, row.name, 'campaign_emails');
+		// let attrValue = frappe.model.get_value(row.doctype, row.name, 'campaign_nodes');
 
 		const doc = locals[cdt][cdn];
 
-		if (doc?.entry_type !== 'Email') {
+		if (doc?.entry_type !== 'Message') {
 			return
 		}
 
@@ -226,7 +234,7 @@ frappe.ui.form.on('EmailMktCampaignEmail', {
 								// re-generate preview mail
 								// needs to be assigned separately, as the setter doesn't return a promise, which breaks
 								// the field_group calling this setter (indirectly).
-								d.fields_dict.prepared_email_body?.set_value(responseValues.email_body);
+								d.fields_dict.prepared_message_body?.set_value(responseValues.message_body);
 							}
 					},
 					{
@@ -235,7 +243,7 @@ frappe.ui.form.on('EmailMktCampaignEmail', {
 					},
 					{
 							label: __('Body'),
-							fieldname: 'prepared_email_body',
+							fieldname: 'prepared_message_body',
 							fieldtype: 'HTML',
 							read_only: 1
 					}

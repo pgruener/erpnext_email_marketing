@@ -76,10 +76,11 @@
   }
  ],
  "links": [],
- "modified": "2022-07-16 14:10:35.555060",
+ "modified": "2023-09-30 13:13:18.919706",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktSegment",
+ "naming_rule": "Set by user",
  "owner": "Administrator",
  "permissions": [
   {
@@ -121,5 +122,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

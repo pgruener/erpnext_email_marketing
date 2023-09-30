@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "entry_type",
+  "custom_event",
   "triggering_node",
   "reference_doctype",
   "reference_name",
@@ -20,10 +21,10 @@
  "fields": [
   {
    "fieldname": "entry_type",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Entry Type",
-   "options": "Clicked Link in E-Mail\nOpened E-Mail\nTag added\nTag removed\nSubscribed in Group\nSubscribed in general\nUnsubscribed from Campaign\nUnsubscribed from Group\nUnsubscribed in general\nUnsubscribed via Spam categorization\nE-Mail sent\nWait scheduled time",
+   "options": "EmailMktEventType",
    "reqd": 1,
    "search_index": 1
   },
@@ -47,19 +48,19 @@
   },
   {
    "fieldname": "optional_parameter_1",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Optional Parameter 1",
    "length": 255
   },
   {
    "fieldname": "optional_parameter_2",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Optional Parameter 2",
    "length": 255
   },
   {
    "fieldname": "optional_parameter_3",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Optional Parameter 3",
    "length": 255
   },
@@ -77,7 +78,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Triggering Node",
-   "options": "EmailMktCampaignEmail",
+   "options": "EmailMktCampaignNode",
    "read_only": 1,
    "reqd": 1,
    "search_index": 1
@@ -87,10 +88,18 @@
    "fieldtype": "Table",
    "label": "Invoked Nodes",
    "options": "EmailMktEventStreamNode"
+  },
+  {
+   "depends_on": "eval: doc.entry_type === 'Custom Event'",
+   "fieldname": "custom_event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Custom Event",
+   "mandatory_depends_on": "eval: doc.entry_type === 'Custom Event'"
   }
  ],
  "links": [],
- "modified": "2022-08-07 15:29:57.008399",
+ "modified": "2023-09-30 16:36:24.111236",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktEventStream",
@@ -110,5 +119,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
