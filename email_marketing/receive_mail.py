@@ -318,9 +318,11 @@ def dispatch_email_mime(email_receiver, email_mime_or_id, s3_session=None):
 					communication.send_email(is_inbound_mail_communcation=True)
 			except SentEmailInInboxError:
 				frappe.db.rollback()
+				return False
 			except Exception:
 				frappe.db.rollback()
 				email_account.log_error(title="EmailAccount.receive")
+				return False
 			else:
 				frappe.db.commit()
 
