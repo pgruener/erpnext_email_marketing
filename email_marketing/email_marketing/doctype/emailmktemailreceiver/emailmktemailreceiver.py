@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 import fnmatch
+import boto3
 
 class EmailMktEmailReceiver(Document):
 	def before_insert(self):
@@ -37,3 +38,15 @@ class EmailMktEmailReceiver(Document):
 					matching_rules.append(email_forwarding_rule)
 
 		return matching_rules
+
+	def s3_session(self, force_new=False):
+		if not hasattr(self, 's3_session_instance'):
+			self.s3_session_instance = None
+
+		if (not self.s3_session_instance or force_new) and self.aws_sns_api_key and self.ses_receiving_region:
+			self.s3_session_instance = boto3.Session(	aws_access_key_id=self.aws_sns_api_key,
+																								# aws_secret_access_key=get_decrypted_password(self.doctype, self.name, 'aws_sns_api_secret'),
+																								aws_secret_access_key=self.get_password('aws_sns_api_secret'),
+																								region_name=self.ses_receiving_region)
+
+		return self.s3_session_instance

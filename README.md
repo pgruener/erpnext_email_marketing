@@ -301,6 +301,29 @@ In AWS the following configurations needs to be done:
       }
       ```
 
+   If you want to enable also the list of the bucket, to reprocess mails, which couldnt be processed (due to system shutdown or other problems) on demand, you'll need to add the "s3:ListBucket" permission for the resource "arn:aws:s3:::*BUCKET_NAME*" (without "/*") as well.
+
+
+      ```
+      {
+         "Version": "2012-10-17",
+         "Statement": [
+            {
+                  "Sid": "VisualEditor2",
+                  "Effect": "Allow",
+                  "Action": [
+                     "s3:ListBucket",
+                  ],
+                  "Resource": [
+                     "arn:aws:s3:::*BUCKET_NAME*",
+                     "arn:aws:ses:*REGION_ID*:*AWS_ACCOUNT_ID*:identity/*"
+                  ]
+            }
+         ]
+      }
+      ```
+
+
 - [Create a User](https://us-east-1.console.aws.amazon.com/iam/home#/users$new?step=details) (IAM), which is assigned to the policy
 - Generate API Key and Secret for the new User
 

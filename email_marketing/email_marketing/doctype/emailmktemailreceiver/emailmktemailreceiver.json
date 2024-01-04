@@ -14,9 +14,12 @@
   "ignore_virus_mails",
   "ignore_spam_mails",
   "amazon_ses_with_s3_settings_section",
+  "aws_sns_api_endpoint",
   "sns_subscription_active",
   "ses_receiving_region",
   "sns_subscribed_topic",
+  "s3_inbound_retries_active",
+  "sns_s3_bucket_name",
   "column_break_13",
   "aws_sns_api_key",
   "aws_sns_api_secret",
@@ -127,14 +130,35 @@
    "fieldtype": "Table",
    "label": "E-Mail Forwarding Rules",
    "options": "EmailMktEmailRecForwarder"
+  },
+  {
+   "fieldname": "sns_s3_bucket_name",
+   "fieldtype": "Data",
+   "label": "S3 Bucket",
+   "mandatory_depends_on": "s3_inbound_retries_active"
+  },
+  {
+   "default": "0",
+   "description": "If the system wasn't present or got an error, this option enables recurring processing retries by trying all mails in the corresponding s3 bucket.\nThe AWS list permission (s3:ListBucket) is required.",
+   "fieldname": "s3_inbound_retries_active",
+   "fieldtype": "Check",
+   "label": "Hourly processing retries for missed mails"
+  },
+  {
+   "fieldname": "aws_sns_api_endpoint",
+   "fieldtype": "Data",
+   "is_virtual": 1,
+   "label": "AWS SNS Endpoint",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-02 16:15:36.090324",
+ "modified": "2024-01-04 13:55:20.235758",
  "modified_by": "Administrator",
  "module": "Email Marketing",
  "name": "EmailMktEmailReceiver",
+ "naming_rule": "Set by user",
  "owner": "Administrator",
  "permissions": [
   {
@@ -151,5 +175,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

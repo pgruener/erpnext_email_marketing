@@ -1,12 +1,11 @@
 import json
-import boto3
 import requests
 import re
 import email
 import html
 
 import frappe
-from frappe.utils.password import get_decrypted_password
+from frappe.email.receive import InboundMail, SentEmailInInboxError
 
 from email_marketing.email_marketing.amazon_sns_validation import validate as valid_sns_message
 
@@ -22,7 +21,7 @@ def receive_mail_via_sns():
 		frappe.throw('Invalid SNS message received {}'.format(message))
 
 	# detect matching EmailMktEmailReceiver profile for this message
-	email_receiver = detect_email_receiver_settings(message)
+	email_receiver = detect_email_receiver_settings(message, auto_init_bucket_name=True)
 
 	if not email_receiver:
 		frappe.throw('No EmailMktEmailReceiver found for SNS Arc {}'.format(message['TopicArn']))
@@ -76,57 +75,46 @@ def handle_s3_sns_message(message, email_receiver):
 		if not email_account:
 			return # ignore mail, if no email_account could be found for the email receiver
 
-		# Establish the S3 client session.
-		message_id = message_message['mail']['messageId']
-		topic_arn_parts = re.search(r':([^:]+):([^:]+):([^:]+)$', receipt['action']['topicArn'])
-		s3_region = topic_arn_parts[1]
-		s3_bucket_name = receipt['action']['bucketName']
+		# Dispatch the email_mime to the corresponding email_receiver and its connected Email Account.
+		if not dispatch_email_mime(email_receiver, message_message['mail']['messageId'], email_receiver.s3_session()):
+			frappe.log_error('Unable to for Email Receiver {} (S3 ID: {})'.format(email_receiver.name, object['Key']))
 
-		s3_session = boto3.Session(	aws_access_key_id=email_receiver.aws_sns_api_key,
-																aws_secret_access_key=get_decrypted_password(email_receiver.doctype, email_receiver.name, 'aws_sns_api_secret'),
-																region_name=s3_region)
 
-		# Get the message from S3.
-		email_mime = get_message_from_s3(s3_session, s3_bucket_name, message_message['mail']['messageId'])
+def detect_email_receiver_settings(message, auto_init_bucket_name=False):
+	try:
+		bucket_name = message['Message']['receipt']['action']['bucketName']
+	except KeyError:
+		return None
 
-		# simulate inbound processing
-		orig_user = frappe.session.user
-
-		try:
-			mailobject = email.message_from_string(email_mime.decode('utf-8'))
-			receivers = [r.strip() for r in (','.join(filter(None, [mailobject['To'], mailobject['Cc']]))).split(',')]
-
-			# forward email (if any forwarding rules active)
-			forwarding_rules = email_receiver.matching_email_forwarding_rules(receivers)
-			if forwarding_rules:
-				forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_session)
-
-			# if all of the matched forwarding rules are set to "skip_original_delivery", do not insert the communication
-			if not forwarding_rules or next((True for rule in forwarding_rules if not rule.skip_original_delivery), False):
-				# attachment creation is not authorized with common users - prefer a super user or checkout correct permission
-				# fails in frappe.email.receive.py #save_attachments_in_doc() #587 (on _file.save())
-				frappe.set_user(email_receiver.receiving_user or 'Administrator')
-
-				email_account.insert_communication(email_mime)
-
-			# delete from s3
-			s3_session.client('s3').delete_object(Bucket=s3_bucket_name, Key=message_id)
-
-		finally:
-			frappe.set_user(orig_user)
-
-def detect_email_receiver_settings(message):
 	message_parts = re.search(r'^arn:aws:sns:([^:]+):([^:]+):([^:]+)', message['TopicArn'])
-
 	sns_region, sns_topic = message_parts[1], message_parts[3]
-	email_receiver_name = frappe.db.get_value('EmailMktEmailReceiver', {
+	receivers_without_bucket = []
+
+	for email_receiver_name in frappe.db.get_all('EmailMktEmailReceiver', {
 		'inbound_transmitter': 'Amazon SES with S3 and SNS',
 		'ses_receiving_region': sns_region,
 		'sns_subscribed_topic': sns_topic,
-		}, 'name')
+		}, 'name'):
 
-	if email_receiver_name:
 		email_receiver = frappe.get_cached_doc('EmailMktEmailReceiver', email_receiver_name)
+
+		# check if bucket name matches or is empty
+		if email_receiver.sns_s3_bucket_name and email_receiver.sns_s3_bucket_name != bucket_name:
+			continue
+		elif not email_receiver.sns_s3_bucket_name:
+			receivers_without_bucket.append(email_receiver)
+			email_receiver = None
+
+	if not email_receiver:
+		if len(receivers_without_bucket) == 1:
+			email_receiver = receivers_without_bucket[0]
+
+			if auto_init_bucket_name:
+				email_receiver.sns_s3_bucket_name = bucket_name
+				email_receiver.flags.ignore_permissions = True
+				email_receiver.save()
+		else:
+			frappe.log_error('No distinct EmailMktEmailReceiver found for SNS Arc {}. Bucket {} not declared'.format(message['TopicArn'], bucket_name))
 
 	return email_receiver
 
@@ -231,3 +219,118 @@ def forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_sessio
 			Destinations=list(set(forward_recipients + forward_cc + forward_bcc)),
 			RawMessage={ 'Data': mailobject.as_string() }
 		)
+
+def read_unprocessed_sns_inbound_mails_from_s3_bucket():
+	"""
+	Due to server downtimes, program errors or other reasons, mails might not have been processed.
+	This task will read all unprocessed mails from the bucket, process them and delete them from the bucket.
+	"""
+	for email_receiver_name in frappe.get_all('EmailMktEmailReceiver', filters={'sns_subscription_active': ['is', 'set'], 'sns_s3_bucket_name': ['is', 'set'], 's3_inbound_retries_active': 1}):
+		email_receiver = frappe.get_cached_doc('EmailMktEmailReceiver', email_receiver_name)
+
+		# Establish the S3 client session.
+		s3_session = email_receiver.s3_session()
+
+		# Create a new S3 client.
+		client_s3 = s3_session.client('s3')
+
+		# Get the list of objects in the bucket.
+		try:
+			response = client_s3.list_objects_v2(Bucket=email_receiver.sns_s3_bucket_name)
+		except Exception as e:
+			frappe.log_error('Unable to list mails from Email Receiver {} (Bucket: {})'.format(email_receiver.name, email_receiver.sns_s3_bucket_name),
+										   'Make sure S3 permission s3:ListBucket is granted:\n{}\n\n{}'.format(str(e), frappe.utils.get_traceback(with_context=True)))
+			continue
+
+		if 'Contents' in response:
+			for object in response['Contents']:
+				dispatch_email_mime(email_receiver, object['Key'], s3_session)
+
+def dispatch_email_mime(email_receiver, email_mime_or_id, s3_session=None):
+	"""
+	Dispatches an email_mime to a corresponding email_receiver and its connected Email Account.
+	"""
+	if isinstance(email_mime_or_id, bytes):
+		email_mime_or_id = email_mime_or_id.decode('utf-8')
+
+	if len(email_mime_or_id) < 100:
+		# if the email_mime is shorter than 100 characters, it is considered to be the message_id
+		message_id = email_mime_or_id
+
+		if not s3_session:
+			if not (s3_session := email_receiver.s3_session()):
+				frappe.log_error('No S3 session provided to read mail by id with Email Receiver {} (S3 ID: {})'.format(email_receiver.name, message_id))
+				return False
+
+		try:
+			email_mime = get_message_from_s3(s3_session, email_receiver.sns_s3_bucket_name, message_id).decode('utf-8')
+		except Exception as e:
+			frappe.log_error('Unable to read mail by id with Email Receiver {} (S3 ID: {}) {}'.format(email_receiver.name, message_id, str(e)))
+			return False
+	else:
+		email_mime = email_mime_or_id
+		# read email id from email_mime with the following pattern Received: from ... \n by ... with SMTP id [Message-ID]:
+		if message_id := re.search(r'^Received: from[^\n]+\s*by[^\n]+with SMTP id ([^\n]+)', email_mime, flags=re.MULTILINE):
+			message_id = message_id[1]
+		else:
+			message_id = None
+
+	communication = None
+	orig_user = frappe.session.user
+
+	try:
+		mailobject = email.message_from_string(email_mime)
+		receivers = [r.strip() for r in (','.join(filter(None, [mailobject['To'], mailobject['Cc']]))).split(',')]
+
+		# find corresponding email_account
+		email_account = email_receiver.target_email_account_for_receiver_email(receivers)
+		if not email_account:
+			frappe.log_error('No Email Account found for Email Receiver {} (S3 ID: {})'.format(email_receiver.name, message_id))
+			return False # ignore mail, if no email_account could be found for the email receiver
+
+		# forward email (if any forwarding rules active)
+		forwarding_rules = email_receiver.matching_email_forwarding_rules(receivers)
+		if forwarding_rules:
+			if s3_session:
+				forward_email_via_ses(forwarding_rules, email_account, mailobject, s3_session)
+			else:
+				frappe.log_error('No S3 session provided to forward mail from Email Receiver {} (S3 ID: {})'.format(email_receiver.name, message_id))
+				return False
+
+		# if all of the matched forwarding rules are set to "skip_original_delivery", do not insert the communication
+		if not forwarding_rules or next((True for rule in forwarding_rules if not rule.skip_original_delivery), False):
+			# attachment creation is not authorized with common users - prefer a super user or checkout correct permission
+			# fails in frappe.email.receive.py #save_attachments_in_doc() #587 (on _file.save())
+			frappe.set_user(email_receiver.receiving_user or 'Administrator')
+
+			# copied in general from frappe.email.doctype.email_acount
+			try:
+				mail = InboundMail(email_mime, email_account)
+				communication = mail.process()
+				frappe.db.commit()
+
+				# If email already exists in the system
+				# then do not send notifications for the same email.
+				if communication and mail.flags.is_new_communication:
+					if email_account.enable_auto_reply:
+						email_account.send_auto_reply(communication, mail)
+
+					communication.send_email(is_inbound_mail_communcation=True)
+			except SentEmailInInboxError:
+				frappe.db.rollback()
+			except Exception:
+				frappe.db.rollback()
+				email_account.log_error(title="EmailAccount.receive")
+			else:
+				frappe.db.commit()
+
+		# delete from s3
+		if s3_session and message_id:
+			# Prevent mistake deletion of mails in developer mode or while testing
+			if not frappe.conf.developer_mode and not frappe.flags.in_test:
+				s3_session.client('s3').delete_object(Bucket=email_receiver.sns_s3_bucket_name, Key=message_id)
+
+	finally:
+		frappe.set_user(orig_user)
+
+	return communication

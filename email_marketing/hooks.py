@@ -109,23 +109,23 @@ doctype_js = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"email_marketing.tasks.all"
 # 	],
 # 	"daily": [
 # 		"email_marketing.tasks.daily"
 # 	],
-# 	"hourly": [
-# 		"email_marketing.tasks.hourly"
-# 	],
+	"hourly": [
+		"email_marketing.receive_mail.read_unprocessed_sns_inbound_mails_from_s3_bucket"
+	],
 # 	"weekly": [
 # 		"email_marketing.tasks.weekly"
 # 	]
 # 	"monthly": [
 # 		"email_marketing.tasks.monthly"
 # 	]
-# }
+}
 
 # Testing
 # -------
