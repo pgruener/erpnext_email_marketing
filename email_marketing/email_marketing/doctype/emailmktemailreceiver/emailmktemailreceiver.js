@@ -4,6 +4,7 @@
 frappe.ui.form.on('EmailMktEmailReceiver', {
 	refresh: function(frm) {
 		const endpoint = `${location.protocol}//${location.host}/api/method/email_marketing.receive_mail.receive_mail_via_sns`;
-		frm.fields_dict.aws_sns_api_endpoint.set_value(endpoint);
+		// frm.fields_dict.aws_sns_api_endpoint.set_value(endpoint); // makes the doctype status dirty
+		frm.fields_dict.aws_sns_api_endpoint.input_area.parentNode.querySelector('.control-value').innerText = endpoint;
 	}
 });
