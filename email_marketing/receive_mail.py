@@ -7,14 +7,21 @@ import html
 import frappe
 from frappe.email.receive import InboundMail, SentEmailInInboxError
 
+from email_marketing.email_marketing.exception_wrapper import exception_handler_decorator
 from email_marketing.email_marketing.amazon_sns_validation import validate as valid_sns_message
 
 # Receive email from Amazon SNS (simple notification service), download it from s3 bucket
 # and perform the inbound processing.
 @frappe.whitelist(allow_guest=True, methods=['POST'])
+@exception_handler_decorator
 def receive_mail_via_sns():
 	# Get the message from the SNS.
 	message = json.loads(frappe.request.data) # message_id = event['Records'][0]['ses']['mail']['messageId']
+
+	# To create a local test message, use the following code, when retrieving a sample message from SNS with test-va@....
+	# ###########################################################
+	# with open('/tmp/sns_message.json', 'wb') as f:
+	# 	f.write(frappe.request.data)
 
 	# verify that message really came from amazon
 	if not valid_sns_message(message):
@@ -79,10 +86,10 @@ def handle_s3_sns_message(message, email_receiver):
 		if not dispatch_email_mime(email_receiver, message_message['mail']['messageId'], email_receiver.s3_session()):
 			frappe.log_error('Unable to for Email Receiver {} (S3 ID: {})'.format(email_receiver.name, object['Key']))
 
-
 def detect_email_receiver_settings(message, auto_init_bucket_name=False):
 	try:
-		bucket_name = message['Message']['receipt']['action']['bucketName']
+		receipt = json.loads(message['Message'])['receipt']
+		bucket_name = receipt['action']['bucketName']
 	except KeyError:
 		return None
 
