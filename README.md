@@ -223,10 +223,10 @@ In AWS the following configurations needs to be done:
                "Service": "ses.amazonaws.com"
                },
                "Action": "SNS:Publish",
-               "Resource": "arn:aws:sns:*REGION_ID*:*AWS_ACCOUNT_ID*:*SNS_TOPIC_NAME*",
+               "Resource": "arn:aws:sns:REGION_ID:AWS_ACCOUNT_ID:SNS_TOPIC_NAME",
                "Condition": {
                   "StringEquals": {
-                     "AWS:SourceAccount": "*AWS_ACCOUNT_ID*"
+                     "AWS:SourceAccount": "AWS_ACCOUNT_ID"
                   },
                   "StringLike": {
                      "AWS:SourceArn": "arn:aws:ses:*"
@@ -250,10 +250,10 @@ In AWS the following configurations needs to be done:
                   "Service": "ses.amazonaws.com"
                },
                "Action": "s3:PutObject",
-               "Resource": "arn:aws:s3:::*BUCKET_NAME*/*",
+               "Resource": "arn:aws:s3:::BUCKET_NAME/*",
                "Condition": {
                   "StringEquals": {
-                     "aws:Referer": "*AWS_ACCOUNT_ID*"
+                     "aws:Referer": "AWS_ACCOUNT_ID"
                   }
                }
             }
@@ -293,15 +293,15 @@ In AWS the following configurations needs to be done:
                      "s3:DeleteObject"
                   ],
                   "Resource": [
-                     "arn:aws:s3:::*BUCKET_NAME*/*",
-                     "arn:aws:ses:*REGION_ID*:*AWS_ACCOUNT_ID*:identity/*"
+                     "arn:aws:s3:::BUCKET_NAME/*",
+                     "arn:aws:ses:REGION_ID:AWS_ACCOUNT_ID:identity/*"
                   ]
             }
          ]
       }
       ```
 
-   If you want to enable also the list of the bucket, to reprocess mails, which couldnt be processed (due to system shutdown or other problems) on demand, you'll need to add the "s3:ListBucket" permission for the resource "arn:aws:s3:::*BUCKET_NAME*" (without "/*") as well.
+      If you want to enable also the list of the bucket, to reprocess mails, which couldnt be processed (due to system shutdown or other problems) on demand, you'll need to add the "s3:ListBucket" permission for the resource "arn:aws:s3:::BUCKET_NAME" (without "/*") as well.
 
 
       ```
@@ -315,8 +315,8 @@ In AWS the following configurations needs to be done:
                      "s3:ListBucket",
                   ],
                   "Resource": [
-                     "arn:aws:s3:::*BUCKET_NAME*",
-                     "arn:aws:ses:*REGION_ID*:*AWS_ACCOUNT_ID*:identity/*"
+                     "arn:aws:s3:::BUCKET_NAME",
+                     "arn:aws:ses:REGION_ID:AWS_ACCOUNT_ID:identity/*"
                   ]
             }
          ]
