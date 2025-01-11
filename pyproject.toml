@@ -1,0 +1,34 @@
+[project]
+name = "email_marketing"
+authors = [
+    { name = "Royal Software GmbH", email = "service@royal-software.de"}
+]
+description = "Email Retrieval with AWS SES"
+requires-python = ">=3.10,<3.13"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+  "oscrypto @ git+https://github.com/wbond/oscrypto.git@d5f3437#oscrypto"
+]
+
+# [tool.bench.dependencies]
+# oscrypto = { git = "https://github.com/wbond/oscrypto.git", rev = "1547f53" }
+
+[project.urls]
+Homepage = "https://github.com/pgruener/erpnext_email_marketing"
+Repository = "https://github.com/pgruener/erpnext_email_marketing.git"
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.dev-dependencies]
+coverage = "~=6.5.0"
+Faker = "~=18.10.1"
+pyngrok = "~=6.0.0"
+unittest-xml-reporting = "~=3.2.0"
+watchdog = "~=3.0.0"
+hypothesis = "~=6.77.0"
+responses = "==0.23.1"
+freezegun = "~=1.2.2"
+
