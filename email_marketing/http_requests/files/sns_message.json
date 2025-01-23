@@ -1,0 +1,12 @@
+{
+  "Type": "Notification",
+  "MessageId": "{{generated_message_id}}",
+  "TopicArn": "arn:aws:sns:{{mail_s3_region}}:23059825:{{mail_sns_topic}}",
+  "Subject": "Amazon SES Email Receipt Notification",
+  "Message": "{ \"notificationType\": \"Received\", \"mail\": { \"messageId\": \"{{generated_message_id}}\" }, \"receipt\": { \"recipients\": [ \"{{mail_recipient}}\" ], \"spamVerdict\": { \"status\": \"PASS\" }, \"virusVerdict\": { \"status\": \"PASS\" }, \"spfVerdict\": { \"status\": \"PASS\" }, \"dkimVerdict\": { \"status\": \"PASS\" }, \"dmarcVerdict\": { \"status\": \"PASS\" }, \"action\": { \"type\": \"S3\", \"topicArn\": \"arn:aws:sns:{{mail_s3_region}}:23059825:{{mail_sns_topic}}\", \"bucketName\": \"{{mail_s3_bucket}}\", \"objectKey\": \"{{generated_message_id}}\" } } }",
+  "timestamp": "{{$timestamp}}",
+  "signatureversion": "1",
+  "signature": "invalid-signature: need to skip over the validation manually for now",
+  "signingcerturl": "https://sns.{{mail_s3_region}}.amazonaws.com/simplenotificationservice-9c6465fa7f48f5cacd23014631ec1136.pem",
+  "unsubscribeurl": "https://sns.{{mail_s3_region}}.amazonaws.com/?action=unsubscribe&subscriptionarn=arn:aws:sns:{{mail_s3_region}}:23059825:{{mail_sns_topic}}:{{generated_message_id}}"
+}

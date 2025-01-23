@@ -1,0 +1,81 @@
+// Write mail message to s3
+@generated_message_id = fake-{{$datetime 'YYYYMMDD'}}-mime
+@aws_auth = AWS {{mail_s3_access_key_id}} {{mail_s3_secret_key}} region:{{mail_s3_region}}
+
+###
+
+@sender_name = 'John Smith'
+@sender = 'sender@email.tld'
+@reply_to = 'reply-to@email.tld'
+
+// INFO: In the current rest-client version, the AWS Auth breaks reading an external file, so that's why the MIME is defined inline here.
+// INFO: Check regularly if this is fixed, and if so, move the MIME to a separate file.
+
+PUT https://{{mail_s3_bucket}}.s3.{{mail_s3_region}}.amazonaws.com/{{generated_message_id}} HTTP/1.1
+Authorization: {{aws_auth}}
+Content-Type: application/octet-stream
+
+MIME-Version: 1.0
+Date: Mon, 17 Jun 2024 06:21:42 -0500
+From: {{sender_name}} <{{sender}}>
+To: {{mail_recipient}}
+Subject: Business proposal
+Reply-To: {{reply_to}}
+User-Agent: Roundcube Webmail/1.4.12
+Message-ID: <{{generated_message_id}}>
+Content-Type: multipart/alternative;
+ boundary="------------U0QWX3IvZczALc8gQnRD0Pdg"
+Content-Transfer-Encoding: 8bit
+
+This is a multi-part message in MIME format.
+--------------U0QWX3IvZczALc8gQnRD0Pdg
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello, this is an important business proposal. Please respond as soon as possible.
+
+--------------U0QWX3IvZczALc8gQnRD0Pdg
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="content-type" content="text/html; charset=UTF-8"></head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <div class="moz-signature" signature-switch-id="eab26f9f-e5c0-469e-b6f6-900aba50c486">
+      Hello, this is an <strong>important</strong> business proposal. Please respond as soon as possible.
+    </div>
+  </body>
+</html>
+
+--------------U0QWX3IvZczALc8gQnRD0Pdg--
+
+###
+
+// Trigger the endpoint, which should retrieve the message from s3 and delete it.
+// !! IMPORTANT !! : Need to set breakpoint in apps/email_marketing/email_marketing/receive_mail.py #27 to SKIP *valid_sns_message* check
+POST {{endpoint_base}}/api/method/email_marketing.receive_mail.receive_mail_via_sns
+Content-Type: application/json
+
+<@ files/sns_message.json
+
+###
+
+// Read Message from s3 (check if present)
+GET https://{{mail_s3_bucket}}.s3.{{mail_s3_region}}.amazonaws.com/{{generated_message_id}}
+Authorization: {{aws_auth}}
+
+###
+
+// List all mail messages in s3 bucket
+GET https://{{mail_s3_bucket}}.s3.{{mail_s3_region}}.amazonaws.com
+Authorization: {{aws_auth}}
+
+###
+
+// Delete mail message from s3
+DELETE https://{{mail_s3_bucket}}.s3.{{mail_s3_region}}.amazonaws.com/{{generated_message_id}}
+Authorization: {{aws_auth}}
+
+###
+#
